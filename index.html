@@ -1,0 +1,1386 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSW Daily Check-Offs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+  :root {
+    --navy:#0a1628;--navy-mid:#112240;--navy-light:#1d3461;
+    --gold:#c9a84c;--gold-light:#e8c97a;--accent:#4a9eff;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f39c12;--purple:#9b59b6;
+    --white:#f0f4ff;--muted:#8899bb;--card-bg:#0f1e35;--border:#1e3a5f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Source Sans 3',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;}
+
+  /* LOGIN */
+  #loginScreen{background:linear-gradient(135deg,#050d1a 0%,#0a1628 50%,#0d2144 100%);align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  #loginScreen::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.08) 0%,transparent 70%);top:-100px;right:-100px;border-radius:50%;}
+  .login-card{background:rgba(15,30,53,.97);border:1px solid var(--border);border-radius:4px;padding:48px 40px;width:100%;max-width:380px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .login-emblem{text-align:center;margin-bottom:28px;}
+  .login-emblem .anchor{font-size:48px;display:block;margin-bottom:8px;}
+  .login-emblem h1{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+  .login-emblem p{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:20px 0;}
+  .form-group{margin-bottom:18px;}
+  .form-group label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:500;}
+  .form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:15px;padding:11px 14px;transition:border-color .2s,background .2s;outline:none;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(201,168,76,.05);}
+  .form-group select option{background:var(--navy-mid);}
+  .pin-input{display:flex;gap:12px;justify-content:center;}
+  .pin-input input{width:60px!important;text-align:center;font-size:24px!important;font-family:'Oswald',sans-serif!important;letter-spacing:2px;padding:11px 8px!important;}
+  .btn{display:block;width:100%;padding:13px 24px;border:none;border-radius:3px;font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center;}
+  .btn-primary{background:var(--gold);color:var(--navy);font-weight:600;}
+  .btn-primary:hover{background:var(--gold-light);transform:translateY(-1px);}
+  .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:0;}
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+  .btn-danger{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.4);color:var(--red);width:auto;padding:8px 16px;font-size:12px;}
+  .btn-danger:hover{background:rgba(231,76,60,.3);}
+  .btn-sm{width:auto;padding:8px 16px;font-size:12px;display:inline-block;}
+  .btn-green{background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.4);color:var(--green);}
+  .btn-green:hover{background:rgba(46,204,113,.3);}
+  .btn-icon{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 10px;border-radius:3px;cursor:pointer;font-size:15px;transition:all .2s;line-height:1;}
+  .btn-icon:hover{border-color:var(--gold);color:var(--gold);}
+  .error-msg{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none;}
+  .setup-banner{background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.4);border-radius:3px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--gold-light);}
+
+  /* HEADER */
+  .app-header{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:0 18px;display:flex;align-items:center;gap:10px;height:58px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+  .header-title{font-family:'Oswald',sans-serif;font-size:17px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;flex:1;}
+  .header-title span{font-size:11px;color:var(--muted);display:block;letter-spacing:1px;font-family:'Source Sans 3',sans-serif;font-weight:300;margin-top:-2px;}
+  .header-user{font-size:12px;color:var(--muted);text-align:right;}
+  .header-user strong{display:block;color:var(--white);font-size:13px;}
+  .shift-badge{padding:4px 10px;border-radius:2px;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+  .shift-day{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+  .shift-night{background:rgba(74,158,255,.15);color:var(--accent);border:1px solid rgba(74,158,255,.3);}
+  .btn-logout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:3px;cursor:pointer;font-size:12px;font-family:'Oswald',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:all .2s;flex-shrink:0;}
+  .btn-logout:hover{border-color:var(--red);color:var(--red);}
+  .btn-refresh{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:3px;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0;line-height:1;}
+  .btn-refresh:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-refresh.spinning{animation:spin .6s linear infinite;}
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+  /* PROGRESS */
+  .progress-section{background:var(--card-bg);border-bottom:1px solid var(--border);padding:14px 18px;}
+  .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .progress-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .progress-pct{font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;color:var(--gold);}
+  .progress-bar-track{height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:4px;transition:width .5s ease;}
+  .progress-counts{display:flex;gap:18px;margin-top:6px;}
+  .prog-count{font-size:12px;color:var(--muted);}
+  .prog-count strong{color:var(--white);}
+
+  /* SYNC BAR */
+  .sync-bar{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:6px 18px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);letter-spacing:1px;font-family:'Oswald',sans-serif;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-live 2s infinite;flex-shrink:0;}
+  .sync-dot.syncing{background:var(--amber);animation:none;}
+  .sync-dot.error{background:var(--red);animation:none;}
+  @keyframes pulse-live{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+
+  /* TABS */
+  .tab-nav{background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;}
+  .tab-btn{padding:13px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .tab-btn:hover:not(.active){color:var(--white);}
+
+  /* CONTENT */
+  .app-content{flex:1;overflow-y:auto;padding:18px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* SECTION HEADERS */
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:22px;}
+  .section-header:first-child{margin-top:0;}
+  .section-title{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+  .section-line{flex:1;height:1px;background:var(--border);}
+  .section-count{font-size:12px;color:var(--muted);}
+
+  /* TASK CARDS */
+  .task-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:7px;transition:all .2s;overflow:hidden;}
+  .task-card:hover{border-color:rgba(201,168,76,.3);}
+  .task-card.completed{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.04);}
+  .task-card.overdue{border-color:rgba(231,76,60,.4);}
+  .task-card.due-soon{border-color:rgba(243,156,18,.4);}
+  .task-main{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;cursor:pointer;}
+  .task-checkbox{width:22px;height:22px;border:2px solid var(--border);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer;}
+  .task-card.completed .task-checkbox{background:var(--green);border-color:var(--green);}
+  .task-checkbox::after{content:'✓';color:white;font-size:13px;font-weight:bold;opacity:0;transition:opacity .2s;}
+  .task-card.completed .task-checkbox::after{opacity:1;}
+  .task-body{flex:1;min-width:0;}
+  .task-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:3px;line-height:1.3;}
+  .task-card.completed .task-name{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(136,153,187,.5);}
+  .task-instruction{font-size:13px;color:var(--muted);line-height:1.4;margin-bottom:5px;}
+  .task-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .task-time-badge{font-size:11px;padding:2px 7px;border-radius:2px;font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  .time-normal{background:rgba(74,158,255,.15);color:var(--accent);border:1px solid rgba(74,158,255,.3);}
+  .time-overdue{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.3);}
+  .time-soon{background:rgba(243,156,18,.15);color:var(--amber);border:1px solid rgba(243,156,18,.3);}
+  .time-done{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+  .task-completed-info{font-size:12px;color:var(--green);font-weight:500;}
+  .task-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+  .btn-note{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 9px;border-radius:3px;cursor:pointer;font-size:15px;transition:all .2s;line-height:1;}
+  .btn-note:hover{border-color:var(--gold);color:var(--gold);}
+  .btn-note.has-note{border-color:rgba(201,168,76,.5);color:var(--gold);}
+  .task-note-panel{border-top:1px solid var(--border);padding:11px 14px;display:none;background:rgba(0,0,0,.2);}
+  .task-note-panel.open{display:block;}
+  .task-note-panel textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:13px;padding:9px 11px;resize:vertical;min-height:65px;outline:none;transition:border-color .2s;}
+  .task-note-panel textarea:focus{border-color:var(--gold);}
+  .task-note-panel textarea::placeholder{color:rgba(136,153,187,.5);}
+  .note-actions{display:flex;gap:8px;margin-top:7px;}
+
+  /* ===== SUPPLIES TAB ===== */
+  .supply-alert-banner{background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.35);border-radius:4px;padding:14px 16px;margin-bottom:18px;}
+  .supply-alert-banner h4{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .supply-alert-item{font-size:13px;color:#ff8a80;padding:3px 0;display:flex;align-items:center;gap:8px;}
+  .supply-alert-item::before{content:'▸';color:var(--red);}
+  .supply-search-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;}
+  .supply-search-wrap{flex:1;position:relative;}
+  .supply-search-wrap input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:14px;padding:10px 14px 10px 38px;outline:none;transition:border-color .2s;}
+  .supply-search-wrap input:focus{border-color:var(--gold);}
+  .supply-search-wrap .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+  .supply-filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+  .supply-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden;transition:all .2s;}
+  .supply-card:hover{border-color:rgba(201,168,76,.3);}
+  .supply-card.critical{border-color:rgba(231,76,60,.5);background:rgba(231,76,60,.04);}
+  .supply-card.low{border-color:rgba(243,156,18,.4);}
+  .supply-card-main{display:flex;align-items:center;gap:12px;padding:12px 14px;}
+  .supply-photo{width:48px;height:48px;border-radius:3px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px;cursor:pointer;}
+  .supply-photo img{width:100%;height:100%;object-fit:cover;border-radius:3px;}
+  .supply-info{flex:1;min-width:0;}
+  .supply-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:2px;}
+  .supply-card.critical .supply-name{color:#ff8a80;}
+  .supply-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;}
+  .supply-id{font-size:11px;color:var(--muted);font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  .supply-location-badge{font-size:11px;padding:2px 7px;border-radius:2px;background:rgba(155,89,182,.15);color:#c39bd3;border:1px solid rgba(155,89,182,.3);font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  .supply-stock-section{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .stock-display{text-align:center;}
+  .stock-num{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;line-height:1;}
+  .stock-num.critical{color:var(--red);}
+  .stock-num.low{color:var(--amber);}
+  .stock-num.ok{color:var(--green);}
+  .stock-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .stock-critical-line{font-size:11px;color:var(--muted);margin-top:2px;}
+  .stock-critical-line span{color:var(--amber);}
+  .supply-actions{display:flex;gap:6px;flex-direction:column;align-items:center;}
+  .stock-adjust{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;padding:4px 8px;}
+  .stock-adjust button{background:none;border:none;color:var(--gold);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;font-family:'Oswald',sans-serif;transition:color .2s;}
+  .stock-adjust button:hover{color:var(--gold-light);}
+  .stock-adjust input{width:44px;background:none;border:none;color:var(--white);font-family:'Oswald',sans-serif;font-size:16px;text-align:center;outline:none;}
+  .supply-expand-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 0;transition:color .2s;white-space:nowrap;}
+  .supply-expand-btn:hover{color:var(--gold);}
+  .supply-detail-panel{border-top:1px solid var(--border);padding:12px 14px;display:none;background:rgba(0,0,0,.15);}
+  .supply-detail-panel.open{display:block;}
+  .supply-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  @media(max-width:480px){.supply-detail-grid{grid-template-columns:1fr;}}
+  .supply-updated{font-size:12px;color:var(--muted);margin-top:8px;}
+
+  /* ADMIN */
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:700px){.admin-grid{grid-template-columns:1fr;}}
+  .admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:18px;}
+  .admin-card h3{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .user-list-item,.task-list-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:10px;}
+  .user-list-item:last-child,.task-list-item:last-child{border-bottom:none;}
+  .user-info strong{display:block;font-size:14px;}
+  .user-info span{font-size:12px;color:var(--muted);}
+  .user-actions{display:flex;gap:6px;}
+  .admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:480px){.admin-form-row{grid-template-columns:1fr;}}
+  .time-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+  /* TURNOVER */
+  .turnover-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:22px;max-width:600px;margin:0 auto;}
+  .turnover-summary{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:3px;padding:14px;margin:14px 0;font-size:12px;line-height:1.8;color:var(--muted);max-height:280px;overflow-y:auto;white-space:pre-wrap;font-family:'Courier New',monospace;}
+  .warning-box{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:3px;padding:12px 14px;margin:14px 0;font-size:13px;color:#ff8a80;display:flex;gap:10px;align-items:flex-start;}
+  .info-box{background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.3);border-radius:3px;padding:12px 14px;margin:14px 0;font-size:13px;color:var(--accent);display:flex;gap:10px;align-items:flex-start;}
+
+  /* MODALS */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px);}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:4px;padding:26px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .modal h2{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap;}
+  .modal-actions .btn{width:auto;}
+
+  /* PHOTO PREVIEW */
+  .photo-preview{width:100%;max-height:180px;object-fit:contain;border-radius:3px;border:1px solid var(--border);margin-top:8px;display:none;}
+  .photo-preview.show{display:block;}
+  .scan-input-row{display:flex;gap:8px;align-items:flex-end;}
+  .scan-input-row .form-group{flex:1;margin-bottom:0;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy-mid);border:1px solid var(--gold);color:var(--white);padding:11px 22px;border-radius:3px;font-size:14px;z-index:9999;transition:transform .3s ease;font-family:'Oswald',sans-serif;letter-spacing:1px;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast.success{border-color:var(--green);}
+  .toast.error{border-color:var(--red);}
+
+  /* MISC */
+  .empty-state{text-align:center;padding:36px 18px;color:var(--muted);font-size:14px;}
+  .empty-state .icon{font-size:36px;margin-bottom:10px;display:block;}
+  .badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:11px;font-family:'Oswald',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+  .badge-admin{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+  .badge-user{background:rgba(74,158,255,.15);color:var(--accent);border:1px solid rgba(74,158,255,.3);}
+  .badge-supply{background:rgba(155,89,182,.2);color:#c39bd3;border:1px solid rgba(155,89,182,.3);}
+  .filter-btn{padding:5px 13px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .filter-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1);}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  select option{background:#0f1e35;color:#f0f4ff;}
+  @media(max-width:480px){.login-card{padding:30px 22px;}.app-header{padding:0 10px;gap:7px;}.app-content{padding:12px;}.header-title{font-size:13px;}}
+</style>
+</head>
+<body>
+
+<script>
+  const WORKER_URL = 'https://msw-api.forsland-chris.workers.dev';
+  const WORKER_SECRET = 'MSW_WARD_SECRET_2025';
+</script>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div id="setupBanner" class="setup-banner" style="display:none">⚙️ <strong>First-time setup:</strong> Initializing…</div>
+    <div class="login-emblem">
+      <span class="anchor">⚓</span>
+      <h1>MSW Check-Offs</h1>
+      <p>Multi-Specialty Ward · Daily Operations</p>
+    </div>
+    <div class="divider"></div>
+    <div class="form-group">
+      <label>Select Your Name</label>
+      <select id="loginUser"><option value="">— Loading… —</option></select>
+    </div>
+    <div class="form-group">
+      <label>4-Digit PIN</label>
+      <div class="pin-input">
+        <input type="password" inputmode="numeric" maxlength="1" class="pin-digit" id="pin1">
+        <input type="password" inputmode="numeric" maxlength="1" class="pin-digit" id="pin2">
+        <input type="password" inputmode="numeric" maxlength="1" class="pin-digit" id="pin3">
+        <input type="password" inputmode="numeric" maxlength="1" class="pin-digit" id="pin4">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    <div id="loginError" class="error-msg"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appScreen" class="screen">
+  <header class="app-header">
+    <div class="header-title">MSW Check-Offs<span id="headerDate"></span></div>
+    <div id="shiftBadgeWrap"></div>
+    <div class="header-user">
+      <strong id="headerUserName"></strong>
+      <span style="font-size:11px;color:var(--muted)" id="headerTime"></span>
+    </div>
+    <button class="btn-refresh" id="refreshBtn" title="Refresh" onclick="manualRefresh()">↻</button>
+    <button class="btn-logout" onclick="doLogout()">OUT</button>
+  </header>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Shift Progress</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+    <div class="progress-counts">
+      <span class="prog-count"><strong id="doneCount">0</strong> Done</span>
+      <span class="prog-count"><strong id="pendingCount">0</strong> Pending</span>
+      <span class="prog-count"><strong id="overdueCount" style="color:var(--red)">0</strong> Overdue</span>
+      <span class="prog-count"><strong id="criticalCount" style="color:var(--red)">0</strong> Supplies Critical</span>
+    </div>
+  </div>
+
+  <div class="sync-bar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncMsg">LIVE — synced to all devices</span>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('day')">☀️ Day Shift</button>
+    <button class="tab-btn" onclick="showTab('night')">🌙 Night Shift</button>
+    <button class="tab-btn" onclick="showTab('supplies')">📦 Supplies</button>
+    <button class="tab-btn" id="adminTabBtn" onclick="showTab('admin')" style="display:none">⚙️ Admin</button>
+    <button class="tab-btn" onclick="showTab('turnover')">🔄 Turnover</button>
+  </nav>
+
+  <div class="app-content">
+
+    <!-- DAY SHIFT -->
+    <div id="tabDay" class="tab-panel active">
+      <div class="supply-filter-row">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+        <button class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
+        <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+      </div>
+      <div id="dayTaskList"></div>
+    </div>
+
+    <!-- NIGHT SHIFT -->
+    <div id="tabNight" class="tab-panel">
+      <div class="supply-filter-row">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+        <button class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
+        <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+      </div>
+      <div id="nightTaskList"></div>
+    </div>
+
+    <!-- SUPPLIES -->
+    <div id="tabSupplies" class="tab-panel">
+      <div id="supplyAlertBanner"></div>
+
+      <div class="supply-search-row">
+        <div class="supply-search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="supplySearch" placeholder="Search by name or scan barcode ID…" oninput="renderSupplies()">
+        </div>
+        <button class="btn-icon" title="Scan Barcode" onclick="openBarcodeScanner()">📷</button>
+        <button class="btn btn-primary btn-sm" onclick="openSupplyModal()">+ Add</button>
+      </div>
+
+      <div class="supply-filter-row">
+        <button class="filter-btn active" onclick="setSupplyFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setSupplyFilter('critical',this)">🔴 Critical</button>
+        <button class="filter-btn" onclick="setSupplyFilter('low',this)">🟡 Low</button>
+        <button class="filter-btn" onclick="setSupplyFilter('ok',this)">🟢 OK</button>
+      </div>
+
+      <div id="supplyList"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="tabAdmin" class="tab-panel">
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>👤 User Management</h3>
+          <div id="userList"></div>
+          <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openUserModal()">+ Add User</button></div>
+        </div>
+        <div class="admin-card">
+          <h3>📋 Task Management</h3>
+          <div id="adminTaskList"></div>
+          <div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ Add Task</button></div>
+        </div>
+        <div class="admin-card">
+          <h3>⚙️ Settings</h3>
+          <div class="form-group"><label>Turnover Email</label><input type="email" id="settingEmail" placeholder="ops@command.mil" oninput="saveSettings()"></div>
+          <div class="info-box"><span>ℹ️</span><span>Reports download as .txt files ready to attach and email.</span></div>
+          <div class="divider"></div>
+          <h3 style="margin-top:0;padding-top:0;border:none;font-size:12px;">🔐 Change Admin PIN</h3>
+          <div class="form-group"><input type="password" inputmode="numeric" maxlength="4" id="newAdminPin" placeholder="New 4-digit PIN"></div>
+          <button class="btn btn-sm btn-green" onclick="changeAdminPin()">Update PIN</button>
+        </div>
+        <div class="admin-card">
+          <h3>⚠️ Danger Zone</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Force-reset all task completions. Use only for manual correction.</p>
+          <button class="btn btn-danger btn-sm" onclick="confirmReset()">Force Reset All Tasks</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TURNOVER -->
+    <div id="tabTurnover" class="tab-panel">
+      <div class="turnover-card">
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">🔄 Shift Turnover</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:14px;">Generate a report and reset all tasks for the next shift.</p>
+        <div class="warning-box"><span>⚠️</span><span>Executing turnover <strong>clears all completions and notes</strong> across all devices. Generate and save the report first.</span></div>
+        <div id="turnoverPreview" class="turnover-summary" style="display:none"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button class="btn btn-primary btn-sm" onclick="generateTurnover()">📄 Preview Report</button>
+          <button class="btn btn-green btn-sm" id="executeTurnoverBtn" onclick="executeTurnover()" style="display:none">✅ Execute Turnover</button>
+          <button class="btn btn-sm" onclick="downloadReport()" id="downloadReportBtn" style="display:none;background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.3);color:var(--accent)">⬇️ Download Report</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- USER MODAL -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <h2 id="userModalTitle">Add User</h2>
+    <input type="hidden" id="editUserId">
+    <div class="admin-form-row">
+      <div class="form-group"><label>First Name</label><input type="text" id="userFirstName" placeholder="John"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="userLastName" placeholder="Smith"></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="form-group">
+        <label>Role</label>
+        <select id="userRole">
+          <option value="user">Staff</option>
+          <option value="supply_rep">Supply Rep</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group"><label>4-Digit PIN</label><input type="password" inputmode="numeric" maxlength="4" id="userPin" placeholder="e.g. 1234"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveUser()">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h2 id="taskModalTitle">Add Task</h2>
+    <input type="hidden" id="editTaskId">
+    <div class="form-group"><label>Task Name</label><input type="text" id="taskName" placeholder="e.g. Check Fridge Temps"></div>
+    <div class="form-group"><label>Instructions</label><textarea id="taskInstructions" placeholder="Detailed steps…" rows="3"></textarea></div>
+    <div class="admin-form-row">
+      <div class="form-group"><label>Shift</label><select id="taskShift"><option value="day">Day Shift</option><option value="night">Night Shift</option><option value="both">Both</option></select></div>
+      <div class="form-group"><label>Category / Section</label><input type="text" id="taskCategory" placeholder="e.g. LDRP Rooms"></div>
+    </div>
+    <div class="form-group">
+      <label>Due Time (optional)</label>
+      <div class="time-row">
+        <div><label style="font-size:11px;color:var(--muted)">Due By</label><input type="time" id="taskDueTime"></div>
+        <div><label style="font-size:11px;color:var(--muted)">Warn (min)</label><input type="number" id="taskWarnMins" min="0" max="120" value="30"></div>
+        <div><label style="font-size:11px;color:var(--muted)">Priority</label><select id="taskPriority"><option value="normal">Normal</option><option value="high">High</option></select></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('taskModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLY MODAL -->
+<div class="modal-overlay" id="supplyModal">
+  <div class="modal">
+    <h2 id="supplyModalTitle">Add Supply Item</h2>
+    <input type="hidden" id="editSupplyId">
+
+    <!-- Barcode / ID -->
+    <div class="form-group">
+      <label>Item ID / Barcode</label>
+      <div class="scan-input-row">
+        <div class="form-group" style="flex:1;margin-bottom:0">
+          <input type="text" id="supplyBarcode" placeholder="Scan or type barcode / ID number">
+        </div>
+        <button class="btn-icon" onclick="scanBarcodeIntoField('supplyBarcode')" title="Scan with camera">📷</button>
+      </div>
+    </div>
+
+    <div class="form-group"><label>Common Name</label><input type="text" id="supplyName" placeholder="e.g. IV Catheter 18G"></div>
+
+    <div class="admin-form-row">
+      <div class="form-group">
+        <label>Current Stock</label>
+        <input type="number" id="supplyStock" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Critical Level</label>
+        <input type="number" id="supplyCritical" min="0" placeholder="e.g. 10">
+      </div>
+    </div>
+
+    <div class="admin-form-row">
+      <div class="form-group">
+        <label>Low Stock Warning Level</label>
+        <input type="number" id="supplyLow" min="0" placeholder="e.g. 20">
+      </div>
+      <div class="form-group">
+        <label>Storage Location</label>
+        <select id="supplyLocation">
+          <option value="">— Select Location —</option>
+          <option>Med Room</option>
+          <option>Supply Room</option>
+          <option>Nurses Station</option>
+          <option>OR</option>
+          <option>Nursery</option>
+          <option>LDRP 1</option>
+          <option>LDRP 2</option>
+          <option>LDRP 3</option>
+          <option>LDRP 4</option>
+          <option>Equipment Room</option>
+          <option>Kitchen</option>
+          <option>Sterile Room</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Photo -->
+    <div class="form-group">
+      <label>Item Photo (optional)</label>
+      <input type="file" id="supplyPhoto" accept="image/*" capture="environment" onchange="previewSupplyPhoto()" style="font-size:13px;padding:8px;">
+      <img id="supplyPhotoPreview" class="photo-preview" alt="Preview">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('supplyModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSupply()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- BARCODE SCANNER MODAL -->
+<div class="modal-overlay" id="scannerModal">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <h2>📷 Scan Barcode</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Point camera at barcode. On most phones, use your keyboard's barcode scanner or type the ID directly.</p>
+    <div class="form-group">
+      <label>Barcode / ID</label>
+      <input type="text" id="scannerInput" placeholder="Type or scan barcode…" autofocus oninput="filterByBarcode(this.value)">
+    </div>
+    <div id="scannerResults" style="margin-top:10px;max-height:200px;overflow-y:auto;"></div>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('scannerModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== API ====================
+async function api(method, path, body) {
+  setSyncing(true);
+  try {
+    const opts = { method, headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${WORKER_SECRET}` } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(WORKER_URL + path, opts);
+    const data = await res.json();
+    setSyncing(false);
+    return data;
+  } catch(e) { setSyncError(); console.error('API error',e); return null; }
+}
+
+function setSyncing(v) {
+  const d = document.getElementById('syncDot'), m = document.getElementById('syncMsg');
+  if (!d) return;
+  d.className = 'sync-dot'+(v?' syncing':'');
+  m.textContent = v ? 'SYNCING…' : 'LIVE — synced to all devices';
+}
+function setSyncError() {
+  const d = document.getElementById('syncDot'), m = document.getElementById('syncMsg');
+  if (!d) return;
+  d.className = 'sync-dot error';
+  m.textContent = 'SYNC ERROR — check Worker URL';
+}
+
+// ==================== STATE ====================
+let state = { users:[], tasks:[], completions:{}, notes:{}, settings:{email:''}, supplies:[] };
+let currentUser = null;
+let activeFilter = 'all';
+let activeSupplyFilter = 'all';
+let turnoverText = '';
+let pollInterval = null;
+let clockInterval = null;
+
+const DEFAULT_USERS = [{ id:'admin', firstName:'Admin', lastName:'', role:'admin', pin:'0000' }];
+
+const DEFAULT_TASKS_DAY = [
+  {name:'Report',instructions:'Daily turnover by 0800',category:'Daily Turnover',dueTime:'08:00',warnMins:30},
+  {name:'Sterile Room',instructions:'Hemorrhage Kit / Forceps of all types, Empty humidifier',category:'Daily Turnover'},
+  {name:'Glucometer',instructions:'Clean Glucometer and its cover with Alcohol',category:'Daily Turnover'},
+  {name:'Fridge Temps',instructions:'Kitchen / Medroom / Nursery prior to 0730',category:'Daily Turnover',dueTime:'07:30',warnMins:15},
+  {name:'Adult Crash Carts',instructions:'Completely fill out document on Adult Cart',category:'Daily Turnover'},
+  {name:'Broselow Cart',instructions:'Completely fill out document on Broselow Cart',category:'Daily Turnover'},
+  {name:'Transporters & O2',instructions:'Fill out document on both MSW & APU Transporters',category:'Daily Turnover'},
+  {name:'OR',instructions:'Warmer, FMT, Kangaroo, 2 FSE & 1 IUPC & Verify Code',category:'Daily Turnover'},
+  {name:'Nursery',instructions:'Completely fill out document in Nursery',category:'Daily Turnover'},
+  {name:'Linen Count',instructions:'Submit PDF of Request Order on Teams. Order for weekend on Thursdays. SUBMIT NLT 1400.',category:'Daily Turnover',dueTime:'14:00',warnMins:30},
+  {name:'Dirty Linen',instructions:'Submit PDF to OPMAN of linen we threw away in biohazard',category:'Daily Turnover'},
+  {name:'Stock Linen',instructions:'Ensure daily linen delivery is put away in equipment room',category:'Daily Turnover'},
+  {name:'Stock Supplies',instructions:'Stock any new supplies from the warehouse',category:'Daily Turnover'},
+  {name:'CSR',instructions:'Take down/Pick up before 1500. If accumulated over the weekend must be brought down before 1000 on Monday. (SPD Closed from 1100-1300)',category:'Daily Turnover',dueTime:'15:00',warnMins:30},
+  {name:'Bio/Hazmat',instructions:'Take down/get boxes & bags',category:'Daily Turnover'},
+  {name:'Take Out Trash',instructions:'If bags meet the line, open bags in trash, or odor',category:'Daily Turnover'},
+  {name:"Tidy Nurse's Station",instructions:"Ensure it's clean before turn over",category:'Daily Turnover'},
+  {name:'Clean Kitchen',instructions:'Ensure tidiness (no dirty dishes)',category:'Daily Turnover'},
+  {name:'LDRP 1',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist, US Plugged In/Clean',category:'LDRP Rooms'},
+  {name:'LDRP 2',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist',category:'LDRP Rooms'},
+  {name:'LDRP 3',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist',category:'LDRP Rooms'},
+  {name:'LDRP 4',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist, ISO flow',category:'LDRP Rooms'},
+];
+const DEFAULT_TASKS_NIGHT = [
+  {name:'Sterile Room',instructions:'Hemorrhage Kit / Forceps of all types, Temp/Humidity WL',category:'Nightly Tasks'},
+  {name:'Fridge Temps',instructions:'Kitchen / Medroom / Nursery prior to 0730',category:'Nightly Tasks',dueTime:'07:30',warnMins:30},
+  {name:'OR',instructions:'Warmer, FMT, Kangaroo, 2 FSE & 1 IUPC & Verify Code',category:'Nightly Tasks'},
+  {name:'Duty Roster',instructions:'Print and highlight for following day',category:'Nightly Tasks'},
+  {name:'Glucometer',instructions:'Check/Document @ 0000',category:'Nightly Tasks',dueTime:'00:00',warnMins:15},
+  {name:'Take Down IMS Chits',instructions:'Ensure chit is filled out fully and correctly verified by two staff members',category:'Nightly Tasks'},
+  {name:'Restock Med Room',instructions:'Restock supplies in IV tray and Herman Miller',category:'Nightly Tasks'},
+  {name:'Room Discrepancies',instructions:'Check Sharps/Curtains, Rooms Neat and Clean',category:'Nightly Tasks'},
+  {name:'Take Out Trash',instructions:'If bags meet the line…',category:'Nightly Tasks'},
+  {name:'Clean Kitchen',instructions:'Ensure Tidiness',category:'Nightly Tasks'},
+  {name:'Remove Scrubs',instructions:'Remove Scrubs and replace bags',category:'Nightly Tasks'},
+  {name:'LDRP 1',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist, US Plugged In/Clean',category:'LDRP Rooms'},
+  {name:'LDRP 2',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist, US Plugged In/Clean',category:'LDRP Rooms'},
+  {name:'LDRP 3',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist',category:'LDRP Rooms'},
+  {name:'LDRP 4',instructions:'Warmer, FMT, Bassinet, US Gel, Kangaroo, Room Tidy, C/S Kit Stocked and Checklist, ISO flow',category:'LDRP Rooms'},
+];
+
+function buildDefaultTasks() {
+  const tasks = [];
+  DEFAULT_TASKS_DAY.forEach((t,i) => tasks.push({id:'task_d_'+i,shift:'day',priority:'normal',dueTime:'',warnMins:30,...t}));
+  DEFAULT_TASKS_NIGHT.forEach((t,i) => tasks.push({id:'task_n_'+i,shift:'night',priority:'normal',dueTime:'',warnMins:30,...t}));
+  return tasks;
+}
+
+// ==================== BOOT ====================
+async function boot() {
+  const remote = await api('GET', '/state');
+  if (!remote) return;
+  const needsSeed = !remote.users || remote.users.length === 0;
+  if (needsSeed) {
+    document.getElementById('setupBanner').style.display = 'block';
+    const defaultState = { users:DEFAULT_USERS, tasks:buildDefaultTasks(), completions:{}, notes:{}, settings:{email:''}, supplies:[] };
+    await api('PUT', '/state', defaultState);
+    state = defaultState;
+  } else {
+    state.users       = remote.users       || DEFAULT_USERS;
+    state.tasks       = remote.tasks       || buildDefaultTasks();
+    state.completions = remote.completions || {};
+    state.notes       = remote.notes       || {};
+    state.settings    = remote.settings    || {email:''};
+    state.supplies    = remote.supplies    || [];
+  }
+  populateLoginUsers();
+  document.getElementById('setupBanner').style.display = 'none';
+}
+boot();
+
+// ==================== POLLING ====================
+function startPolling() {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    const remote = await api('GET', '/state');
+    if (!remote) return;
+    state.completions = remote.completions || {};
+    state.notes       = remote.notes       || {};
+    state.users       = remote.users       || state.users;
+    state.tasks       = remote.tasks       || state.tasks;
+    state.settings    = remote.settings    || state.settings;
+    state.supplies    = remote.supplies    || state.supplies;
+    renderAll();
+    renderSupplies();
+    updateProgress();
+  }, 15000);
+}
+
+// ==================== REFRESH BUTTON ====================
+async function manualRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  const remote = await api('GET', '/state');
+  if (remote) {
+    state.completions = remote.completions || {};
+    state.notes       = remote.notes       || {};
+    state.users       = remote.users       || state.users;
+    state.tasks       = remote.tasks       || state.tasks;
+    state.settings    = remote.settings    || state.settings;
+    state.supplies    = remote.supplies    || state.supplies;
+    renderAll();
+    renderSupplies();
+    updateProgress();
+    showToast('Refreshed ✓', 'success');
+  }
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+}
+
+// ==================== LOGIN ====================
+function populateLoginUsers() {
+  const sel = document.getElementById('loginUser');
+  sel.innerHTML = '<option value="">— Choose User —</option>';
+  (state.users||[]).forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = u.firstName + (u.lastName ? ' '+u.lastName : '');
+    sel.appendChild(opt);
+  });
+}
+
+function doLogin() {
+  const userId = document.getElementById('loginUser').value;
+  const pin = ['pin1','pin2','pin3','pin4'].map(id => document.getElementById(id).value).join('');
+  document.getElementById('loginError').style.display = 'none';
+  if (!userId || pin.length !== 4) { showLoginErr('Please select your name and enter your PIN.'); return; }
+  const user = (state.users||[]).find(u => u.id===userId && u.pin===pin);
+  if (!user) {
+    showLoginErr('Invalid PIN. Please try again.');
+    ['pin1','pin2','pin3','pin4'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('pin1').focus();
+    return;
+  }
+  currentUser = user;
+  showApp();
+}
+
+function showLoginErr(msg) {
+  const e = document.getElementById('loginError');
+  e.textContent = msg; e.style.display = 'block';
+}
+
+document.querySelectorAll('.pin-digit').forEach((el,i,arr) => {
+  el.addEventListener('input',() => {
+    if (el.value.length===1 && i<arr.length-1) arr[i+1].focus();
+    if (el.value.length===1 && i===arr.length-1) doLogin();
+  });
+  el.addEventListener('keydown',e => {
+    if (e.key==='Backspace' && el.value==='' && i>0) arr[i-1].focus();
+    if (e.key==='Enter') doLogin();
+  });
+});
+
+function doLogout() {
+  currentUser = null;
+  ['pin1','pin2','pin3','pin4'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  if (pollInterval) clearInterval(pollInterval);
+  if (clockInterval) clearInterval(clockInterval);
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('appScreen').classList.remove('active');
+}
+
+// ==================== APP ====================
+function showApp() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('adminTabBtn').style.display = currentUser.role==='admin' ? '' : 'none';
+  loadSettingsUI();
+  renderAll();
+  renderSupplies();
+  updateHeader();
+  showTab('day');
+  startPolling();
+  clockInterval = setInterval(updateHeader, 30000);
+}
+
+function updateHeader() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('headerTime').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if (currentUser) document.getElementById('headerUserName').textContent = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  const h = now.getHours(), isDay = h>=6 && h<18;
+  document.getElementById('shiftBadgeWrap').innerHTML = `<span class="shift-badge ${isDay?'shift-day':'shift-night'}">${isDay?'☀️ Day':'🌙 Night'}</span>`;
+}
+
+// ==================== TABS ====================
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if ((b.getAttribute('onclick')||'').includes("'"+name+"'")) b.classList.add('active');
+  });
+  if (name==='admin') renderAdmin();
+  if (name==='supplies') renderSupplies();
+  updateProgress();
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('#tabDay .filter-btn, #tabNight .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function setSupplyFilter(f, btn) {
+  activeSupplyFilter = f;
+  document.querySelectorAll('#tabSupplies .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSupplies();
+}
+
+// ==================== TASK STATUS ====================
+function getTaskStatus(task) {
+  if (state.completions[task.id]) return 'completed';
+  if (!task.dueTime) return 'pending';
+  const now = new Date();
+  const [dh,dm] = task.dueTime.split(':').map(Number);
+  const due = new Date(); due.setHours(dh,dm,0,0);
+  if (dh===0 && now.getHours()>12) due.setDate(due.getDate()+1);
+  const diff = (due-now)/60000;
+  if (diff<0) return 'overdue';
+  if (diff<=(task.warnMins||30)) return 'due-soon';
+  return 'pending';
+}
+function formatDueTime(task) {
+  if (!task.dueTime) return '';
+  const [h,m] = task.dueTime.split(':').map(Number);
+  const d = new Date(); d.setHours(h,m);
+  return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ==================== RENDER TASKS ====================
+function renderAll() { renderTaskList('day'); renderTaskList('night'); updateProgress(); }
+
+function renderTaskList(shift) {
+  const container = document.getElementById(shift+'TaskList');
+  if (!container) return;
+  const tasks = (state.tasks||[]).filter(t => t.shift===shift||t.shift==='both');
+  const cats = {};
+  tasks.forEach(t => { const c=t.category||'General'; if(!cats[c]) cats[c]=[]; cats[c].push(t); });
+  let html = '';
+  Object.entries(cats).forEach(([cat,catTasks]) => {
+    let filtered = catTasks;
+    if (activeFilter==='completed') filtered=catTasks.filter(t=>getTaskStatus(t)==='completed');
+    else if (activeFilter==='pending') filtered=catTasks.filter(t=>['pending','due-soon'].includes(getTaskStatus(t)));
+    else if (activeFilter==='overdue') filtered=catTasks.filter(t=>getTaskStatus(t)==='overdue');
+    if (!filtered.length) return;
+    const done = catTasks.filter(t=>getTaskStatus(t)==='completed').length;
+    html += `<div class="section-header"><span class="section-title">${esc(cat)}</span><div class="section-line"></div><span class="section-count">${done}/${catTasks.length}</span></div>`;
+    filtered.forEach(task => { html += renderTaskCard(task); });
+  });
+  container.innerHTML = html || '<div class="empty-state"><span class="icon">✓</span>No tasks match filter.</div>';
+}
+
+function renderTaskCard(task) {
+  const status = getTaskStatus(task);
+  const comp = state.completions[task.id];
+  const note = state.notes[task.id]||'';
+  const hasNote = note.trim().length>0;
+  let timeBadge = '';
+  if (task.dueTime) {
+    const lbl = formatDueTime(task);
+    if (status==='completed') timeBadge=`<span class="task-time-badge time-done">✓ Due ${lbl}</span>`;
+    else if (status==='overdue') timeBadge=`<span class="task-time-badge time-overdue">⚠ OVERDUE ${lbl}</span>`;
+    else if (status==='due-soon') timeBadge=`<span class="task-time-badge time-soon">⏰ Due ${lbl}</span>`;
+    else timeBadge=`<span class="task-time-badge time-normal">🕐 Due ${lbl}</span>`;
+  }
+  let compInfo = comp ? `<span class="task-completed-info">✓ ${esc(comp.userName)} · ${new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</span>` : '';
+  return `<div class="task-card ${status}" id="card_${task.id}">
+    <div class="task-main">
+      <div class="task-checkbox" onclick="toggleTask('${task.id}')"></div>
+      <div class="task-body" onclick="toggleTask('${task.id}')">
+        <div class="task-name">${esc(task.name)}</div>
+        ${task.instructions?`<div class="task-instruction">${esc(task.instructions)}</div>`:''}
+        <div class="task-meta">${timeBadge}${compInfo}</div>
+      </div>
+      <div class="task-actions"><button class="btn-note ${hasNote?'has-note':''}" onclick="toggleNote('${task.id}')">📝</button></div>
+    </div>
+    <div class="task-note-panel ${hasNote?'open':''}" id="note_${task.id}">
+      <textarea placeholder="Add notes here…" id="noteText_${task.id}">${esc(note)}</textarea>
+      <div class="note-actions">
+        <button class="btn btn-sm btn-green" onclick="saveNoteBtn('${task.id}')">Save Note</button>
+        <button class="btn btn-secondary btn-sm" onclick="toggleNote('${task.id}')">Close</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function toggleTask(taskId) {
+  const comp = state.completions[taskId];
+  const result = await api('POST','/complete',{taskId,userId:currentUser.id,userName:currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:''),undo:!!comp});
+  if (!result) return;
+  state.completions = result.completions;
+  showToast(comp?'Task marked incomplete':'✓ Task completed!',comp?'default':'success');
+  renderAll();
+}
+
+function toggleNote(taskId) { const p=document.getElementById('note_'+taskId); if(p) p.classList.toggle('open'); }
+
+async function saveNoteBtn(taskId) {
+  const ta = document.getElementById('noteText_'+taskId);
+  const note = ta ? ta.value : '';
+  const result = await api('POST','/note',{taskId,note});
+  if (!result) return;
+  state.notes = result.notes;
+  showToast('Note saved ✓','success');
+  renderAll();
+}
+
+// ==================== PROGRESS ====================
+function updateProgress() {
+  const all = state.tasks||[];
+  const done = all.filter(t=>state.completions[t.id]).length;
+  const overdue = all.filter(t=>getTaskStatus(t)==='overdue').length;
+  const total = all.length;
+  const pct = total===0?0:Math.round((done/total)*100);
+  const criticalSupplies = (state.supplies||[]).filter(s=>getSupplyStatus(s)==='critical').length;
+  document.getElementById('progressPct').textContent = pct+'%';
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('pendingCount').textContent = total-done;
+  document.getElementById('overdueCount').textContent = overdue;
+  document.getElementById('criticalCount').textContent = criticalSupplies;
+}
+
+// ==================== SUPPLIES ====================
+function getSupplyStatus(s) {
+  const stock = Number(s.currentStock)||0;
+  const critical = Number(s.criticalLevel)||0;
+  const low = Number(s.lowLevel)||0;
+  if (critical>0 && stock<=critical) return 'critical';
+  if (low>0 && stock<=low) return 'low';
+  return 'ok';
+}
+
+function renderSupplies() {
+  const supplies = state.supplies||[];
+  const search = (document.getElementById('supplySearch')||{}).value||'';
+  const q = search.toLowerCase().trim();
+
+  // Filter
+  let filtered = supplies.filter(s => {
+    const matchSearch = !q || s.name.toLowerCase().includes(q) || (s.barcode||'').toLowerCase().includes(q);
+    const status = getSupplyStatus(s);
+    const matchFilter = activeSupplyFilter==='all' || activeSupplyFilter===status;
+    return matchSearch && matchFilter;
+  });
+
+  // Sort: critical first, then low, then ok, then alphabetical
+  filtered.sort((a,b) => {
+    const order = {critical:0,low:1,ok:2};
+    const sa = order[getSupplyStatus(a)]||2, sb = order[getSupplyStatus(b)]||2;
+    if (sa!==sb) return sa-sb;
+    return a.name.localeCompare(b.name);
+  });
+
+  // Alert banner — items at/below critical
+  const criticals = supplies.filter(s=>getSupplyStatus(s)==='critical');
+  const banner = document.getElementById('supplyAlertBanner');
+  if (criticals.length>0) {
+    banner.innerHTML = `<div class="supply-alert-banner">
+      <h4>🚨 ORDER REQUIRED — ${criticals.length} item${criticals.length>1?'s':''} at critical level</h4>
+      ${criticals.map(s=>`<div class="supply-alert-item">${esc(s.name)} — Stock: ${s.currentStock} (Critical: ${s.criticalLevel}) · ${esc(s.location||'Location unknown')}</div>`).join('')}
+    </div>`;
+  } else { banner.innerHTML = ''; }
+
+  const container = document.getElementById('supplyList');
+  if (!filtered.length) { container.innerHTML = '<div class="empty-state"><span class="icon">📦</span>No supplies match your search.</div>'; return; }
+
+  const canDelete = currentUser && (currentUser.role==='admin'||currentUser.role==='supply_rep');
+  const canEditCritical = currentUser && (currentUser.role==='admin'||currentUser.role==='supply_rep');
+
+  container.innerHTML = filtered.map(s => {
+    const status = getSupplyStatus(s);
+    const stock = Number(s.currentStock)||0;
+    const stockClass = status==='critical'?'critical':status==='low'?'low':'ok';
+    const updatedBy = s.lastUpdatedBy ? `Updated by ${esc(s.lastUpdatedBy)} · ${s.lastUpdated?new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}` : '';
+    return `<div class="supply-card ${status}" id="scard_${s.id}">
+      <div class="supply-card-main">
+        <div class="supply-photo" onclick="viewSupplyPhoto('${s.id}')">
+          ${s.photo?`<img src="${s.photo}" alt="${esc(s.name)}">`:'📦'}
+        </div>
+        <div class="supply-info">
+          <div class="supply-name">${esc(s.name)}</div>
+          <div class="supply-meta">
+            ${s.barcode?`<span class="supply-id">ID: ${esc(s.barcode)}</span>`:''}
+            ${s.location?`<span class="supply-location-badge">${esc(s.location)}</span>`:''}
+          </div>
+          <div class="stock-critical-line">Critical: <span>${s.criticalLevel||'—'}</span> &nbsp; Low: <span>${s.lowLevel||'—'}</span></div>
+        </div>
+        <div class="supply-stock-section">
+          <div class="stock-display">
+            <div class="stock-num ${stockClass}">${stock}</div>
+            <div class="stock-label">in stock</div>
+          </div>
+        </div>
+        <div class="supply-actions">
+          <div class="stock-adjust">
+            <button onclick="adjustStock('${s.id}',-1)">−</button>
+            <input type="number" value="${stock}" min="0" onchange="setStock('${s.id}',this.value)" id="stockInput_${s.id}">
+            <button onclick="adjustStock('${s.id}',1)">+</button>
+          </div>
+          <button class="supply-expand-btn" onclick="toggleSupplyDetail('${s.id}')">more ▾</button>
+        </div>
+      </div>
+      <div class="supply-detail-panel" id="sdetail_${s.id}">
+        <div class="supply-detail-grid">
+          ${canEditCritical?`
+          <div class="form-group" style="margin-bottom:0">
+            <label>Critical Level</label>
+            <input type="number" value="${s.criticalLevel||''}" min="0" placeholder="e.g. 10" onchange="updateCriticalLevel('${s.id}',this.value)">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Low Level</label>
+            <input type="number" value="${s.lowLevel||''}" min="0" placeholder="e.g. 20" onchange="updateLowLevel('${s.id}',this.value)">
+          </div>`:`
+          <div style="font-size:13px;color:var(--muted)">Critical/Low levels can be edited by Supply Rep or Admin.</div>
+          `}
+        </div>
+        ${updatedBy?`<div class="supply-updated">🕐 ${updatedBy}</div>`:''}
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">✏️ Edit</button>
+          ${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteSupply('${s.id}')">🗑 Delete</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSupplyDetail(id) {
+  const p = document.getElementById('sdetail_'+id);
+  if (p) p.classList.toggle('open');
+}
+
+async function adjustStock(supplyId, delta) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  const newVal = Math.max(0,(Number(s.currentStock)||0)+delta);
+  await updateSupplyStock(supplyId, newVal);
+}
+
+async function setStock(supplyId, val) {
+  await updateSupplyStock(supplyId, Math.max(0, parseInt(val)||0));
+}
+
+async function updateSupplyStock(supplyId, newStock) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  s.currentStock = newStock;
+  s.lastUpdatedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  s.lastUpdated = new Date().toISOString();
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+  updateProgress();
+}
+
+async function updateCriticalLevel(supplyId, val) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  s.criticalLevel = parseInt(val)||0;
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+}
+
+async function updateLowLevel(supplyId, val) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  s.lowLevel = parseInt(val)||0;
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+}
+
+// Supply photo preview
+function previewSupplyPhoto() {
+  const file = document.getElementById('supplyPhoto').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('supplyPhotoPreview');
+    img.src = e.target.result;
+    img.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function viewSupplyPhoto(supplyId) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s||!s.photo) return;
+  const w = window.open('','_blank','width=400,height=400');
+  w.document.write(`<img src="${s.photo}" style="max-width:100%;max-height:100vh;">`);
+}
+
+// Supply modal
+function openSupplyModal(supplyId) {
+  document.getElementById('editSupplyId').value = supplyId||'';
+  document.getElementById('supplyModalTitle').textContent = supplyId?'Edit Supply Item':'Add Supply Item';
+  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('supplyLocation').value = '';
+  document.getElementById('supplyPhotoPreview').classList.remove('show');
+  document.getElementById('supplyPhoto').value = '';
+  if (supplyId) {
+    const s = (state.supplies||[]).find(x=>x.id===supplyId);
+    if (s) {
+      document.getElementById('supplyBarcode').value = s.barcode||'';
+      document.getElementById('supplyName').value = s.name||'';
+      document.getElementById('supplyStock').value = s.currentStock??'';
+      document.getElementById('supplyCritical').value = s.criticalLevel||'';
+      document.getElementById('supplyLow').value = s.lowLevel||'';
+      document.getElementById('supplyLocation').value = s.location||'';
+      if (s.photo) { const img=document.getElementById('supplyPhotoPreview'); img.src=s.photo; img.classList.add('show'); }
+    }
+  }
+  document.getElementById('supplyModal').classList.add('open');
+}
+
+async function saveSupply() {
+  const name = document.getElementById('supplyName').value.trim();
+  if (!name) { showToast('Supply name required','error'); return; }
+
+  const editId = document.getElementById('editSupplyId').value;
+  let photoData = null;
+
+  // Read photo if selected
+  const photoFile = document.getElementById('supplyPhoto').files[0];
+  if (photoFile) {
+    photoData = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.readAsDataURL(photoFile);
+    });
+  }
+
+  const supplyData = {
+    name,
+    barcode: document.getElementById('supplyBarcode').value.trim(),
+    currentStock: parseInt(document.getElementById('supplyStock').value)||0,
+    criticalLevel: parseInt(document.getElementById('supplyCritical').value)||0,
+    lowLevel: parseInt(document.getElementById('supplyLow').value)||0,
+    location: document.getElementById('supplyLocation').value,
+  };
+  if (photoData) supplyData.photo = photoData;
+
+  if (editId) {
+    const s = state.supplies.find(x=>x.id===editId);
+    if (s) { Object.assign(s, supplyData); if (!photoData && s.photo) supplyData.photo = s.photo; Object.assign(s, supplyData); }
+  } else {
+    state.supplies.push({ id:'sup_'+Date.now(), ...supplyData, lastUpdatedBy:'', lastUpdated:'' });
+  }
+
+  const res = await api('PUT','/supplies',{supplies:state.supplies});
+  if (!res) return;
+  closeModal('supplyModal');
+  renderSupplies();
+  showToast('Supply saved ✓','success');
+}
+
+async function deleteSupply(supplyId) {
+  if (!confirm('Delete this supply item?')) return;
+  state.supplies = state.supplies.filter(s=>s.id!==supplyId);
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+  updateProgress();
+  showToast('Supply deleted','default');
+}
+
+// Barcode scanner
+function openBarcodeScanner() {
+  document.getElementById('scannerInput').value = '';
+  document.getElementById('scannerResults').innerHTML = '';
+  document.getElementById('scannerModal').classList.add('open');
+  setTimeout(()=>document.getElementById('scannerInput').focus(),200);
+}
+
+function filterByBarcode(val) {
+  const q = val.trim().toLowerCase();
+  if (!q) { document.getElementById('scannerResults').innerHTML=''; return; }
+  const matches = (state.supplies||[]).filter(s=>(s.barcode||'').toLowerCase().includes(q)||s.name.toLowerCase().includes(q));
+  if (!matches.length) { document.getElementById('scannerResults').innerHTML='<p style="font-size:13px;color:var(--muted);text-align:center;padding:10px">No matching items</p>'; return; }
+  document.getElementById('scannerResults').innerHTML = matches.map(s=>{
+    const status=getSupplyStatus(s);
+    const col=status==='critical'?'var(--red)':status==='low'?'var(--amber)':'var(--green)';
+    return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;cursor:pointer" onclick="jumpToSupply('${s.id}')">
+      <strong style="font-size:14px">${esc(s.name)}</strong>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">ID: ${esc(s.barcode||'—')} · <span style="color:${col}">${s.currentStock} in stock</span> · ${esc(s.location||'')}</div>
+    </div>`;
+  }).join('');
+}
+
+function jumpToSupply(id) {
+  closeModal('scannerModal');
+  showTab('supplies');
+  document.getElementById('supplySearch').value = '';
+  setTimeout(()=>{ const el=document.getElementById('scard_'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },300);
+}
+
+function scanBarcodeIntoField(fieldId) {
+  const val = prompt('Enter or scan barcode / ID:');
+  if (val) document.getElementById(fieldId).value = val.trim();
+}
+
+// ==================== ADMIN ====================
+function renderAdmin() { renderUserList(); renderAdminTaskList(); loadSettingsUI(); }
+
+function renderUserList() {
+  const c = document.getElementById('userList');
+  if (!c) return;
+  c.innerHTML = (state.users||[]).map(u=>`
+    <div class="user-list-item">
+      <div class="user-info">
+        <strong>${esc(u.firstName)} ${esc(u.lastName||'')}</strong>
+        <span><span class="badge ${u.role==='admin'?'badge-admin':u.role==='supply_rep'?'badge-supply':'badge-user'}">${u.role==='supply_rep'?'Supply Rep':u.role}</span> &nbsp;PIN: ${'•'.repeat(u.pin.length)}</span>
+      </div>
+      <div class="user-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openUserModal('${u.id}')">Edit</button>
+        ${u.id!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Del</button>`:''}
+      </div>
+    </div>`).join('')||'<div class="empty-state" style="padding:16px 0">No users.</div>';
+}
+
+function renderAdminTaskList() {
+  const c = document.getElementById('adminTaskList');
+  if (!c) return;
+  c.innerHTML = (state.tasks||[]).map(t=>`
+    <div class="task-list-item">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500">${esc(t.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(t.category||'')} · ${t.shift}${t.dueTime?' · Due '+t.dueTime:''}</div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${t.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Del</button>
+      </div>
+    </div>`).join('')||'<div class="empty-state" style="padding:16px 0">No tasks.</div>';
+}
+
+// ==================== USER MODAL ====================
+function openUserModal(userId) {
+  document.getElementById('editUserId').value = userId||'';
+  document.getElementById('userModalTitle').textContent = userId?'Edit User':'Add User';
+  document.getElementById('userFirstName').value='';
+  document.getElementById('userLastName').value='';
+  document.getElementById('userRole').value='user';
+  document.getElementById('userPin').value='';
+  if (userId) {
+    const u=(state.users||[]).find(x=>x.id===userId);
+    if (u) { document.getElementById('userFirstName').value=u.firstName; document.getElementById('userLastName').value=u.lastName||''; document.getElementById('userRole').value=u.role; document.getElementById('userPin').value=u.pin; }
+  }
+  document.getElementById('userModal').classList.add('open');
+}
+
+async function saveUser() {
+  const fn=document.getElementById('userFirstName').value.trim();
+  const ln=document.getElementById('userLastName').value.trim();
+  const role=document.getElementById('userRole').value;
+  const pin=document.getElementById('userPin').value.trim();
+  const editId=document.getElementById('editUserId').value;
+  if (!fn) { showToast('First name required','error'); return; }
+  if (!/^\d{4}$/.test(pin)) { showToast('PIN must be 4 digits','error'); return; }
+  if (editId) { const u=state.users.find(x=>x.id===editId); if(u){u.firstName=fn;u.lastName=ln;u.role=role;u.pin=pin;} }
+  else state.users.push({id:'u_'+Date.now(),firstName:fn,lastName:ln,role,pin});
+  const res=await api('PUT','/users',{users:state.users});
+  if (!res) return;
+  closeModal('userModal'); renderUserList(); populateLoginUsers(); showToast('User saved ✓','success');
+}
+
+async function deleteUser(userId) {
+  if (!confirm('Delete this user?')) return;
+  state.users=state.users.filter(u=>u.id!==userId);
+  await api('PUT','/users',{users:state.users});
+  renderUserList(); populateLoginUsers(); showToast('User deleted','default');
+}
+
+// ==================== TASK MODAL ====================
+function openTaskModal(taskId) {
+  document.getElementById('editTaskId').value=taskId||'';
+  document.getElementById('taskModalTitle').textContent=taskId?'Edit Task':'Add Task';
+  ['taskName','taskInstructions','taskCategory','taskDueTime'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('taskShift').value='day';
+  document.getElementById('taskWarnMins').value='30';
+  document.getElementById('taskPriority').value='normal';
+  if (taskId) {
+    const t=(state.tasks||[]).find(x=>x.id===taskId);
+    if (t) { document.getElementById('taskName').value=t.name; document.getElementById('taskInstructions').value=t.instructions||''; document.getElementById('taskShift').value=t.shift; document.getElementById('taskCategory').value=t.category||''; document.getElementById('taskDueTime').value=t.dueTime||''; document.getElementById('taskWarnMins').value=t.warnMins||30; document.getElementById('taskPriority').value=t.priority||'normal'; }
+  }
+  document.getElementById('taskModal').classList.add('open');
+}
+
+async function saveTask() {
+  const name=document.getElementById('taskName').value.trim();
+  if (!name) { showToast('Task name required','error'); return; }
+  const taskData={name,instructions:document.getElementById('taskInstructions').value.trim(),shift:document.getElementById('taskShift').value,category:document.getElementById('taskCategory').value.trim()||'General',dueTime:document.getElementById('taskDueTime').value,warnMins:parseInt(document.getElementById('taskWarnMins').value)||30,priority:document.getElementById('taskPriority').value};
+  const editId=document.getElementById('editTaskId').value;
+  if (editId){const t=state.tasks.find(x=>x.id===editId);if(t)Object.assign(t,taskData);}
+  else state.tasks.push({id:'task_'+Date.now(),...taskData});
+  const res=await api('PUT','/tasks',{tasks:state.tasks});
+  if (!res) return;
+  closeModal('taskModal'); renderAdminTaskList(); renderAll(); showToast('Task saved ✓','success');
+}
+
+async function deleteTask(taskId) {
+  if (!confirm('Delete this task?')) return;
+  state.tasks=state.tasks.filter(t=>t.id!==taskId);
+  delete state.completions[taskId]; delete state.notes[taskId];
+  await api('PUT','/tasks',{tasks:state.tasks});
+  renderAdminTaskList(); renderAll(); showToast('Task deleted','default');
+}
+
+// ==================== SETTINGS ====================
+function loadSettingsUI() { const s=state.settings||{}; const el=document.getElementById('settingEmail'); if(el) el.value=s.email||''; }
+async function saveSettings() { state.settings.email=document.getElementById('settingEmail').value; await api('PUT','/settings',{settings:state.settings}); }
+async function changeAdminPin() {
+  const pin=document.getElementById('newAdminPin').value.trim();
+  if (!/^\d{4}$/.test(pin)){showToast('PIN must be 4 digits','error');return;}
+  const admin=state.users.find(u=>u.id==='admin'); if(admin) admin.pin=pin;
+  await api('PUT','/users',{users:state.users});
+  document.getElementById('newAdminPin').value=''; showToast('Admin PIN updated ✓','success');
+}
+async function confirmReset() {
+  if (!confirm('Reset ALL task completions? This cannot be undone.')) return;
+  const res=await api('POST','/reset'); if(!res) return;
+  state.completions={}; state.notes={}; renderAll(); showToast('All tasks reset ✓','success');
+}
+
+// ==================== TURNOVER ====================
+function generateTurnover() {
+  const now=new Date();
+  let r=`========================================\n  MSW SHIFT TURNOVER REPORT\n========================================\n`;
+  r+=`Date: ${now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}\n`;
+  r+=`Time: ${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}\n`;
+  r+=`Generated By: ${currentUser.firstName} ${currentUser.lastName||''}\n========================================\n\n`;
+  const total=state.tasks.length, done=state.tasks.filter(t=>state.completions[t.id]).length;
+  r+=`SUMMARY\n-------\nTotal: ${total}  Completed: ${done} (${total?Math.round(done/total*100):0}%)  Incomplete: ${total-done}\n\n`;
+  ['day','night'].forEach(shift=>{
+    const tasks=state.tasks.filter(t=>t.shift===shift||t.shift==='both');
+    if (!tasks.length) return;
+    r+=`${shift.toUpperCase()} SHIFT TASKS\n${'─'.repeat(20)}\n`;
+    tasks.forEach(t=>{
+      const comp=state.completions[t.id];
+      r+=comp?`[✓] ${t.name} — Completed by ${comp.userName} at ${new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}\n`:`[ ] ${t.name} — INCOMPLETE\n`;
+      const note=state.notes[t.id]; if(note&&note.trim()) r+=`    NOTE: ${note.trim()}\n`;
+    });
+    r+='\n';
+  });
+  // Supplies summary
+  const criticals=(state.supplies||[]).filter(s=>getSupplyStatus(s)==='critical');
+  const lows=(state.supplies||[]).filter(s=>getSupplyStatus(s)==='low');
+  r+=`SUPPLY STATUS\n${'─'.repeat(20)}\n`;
+  if (criticals.length) { r+=`CRITICAL (Order Required):\n`; criticals.forEach(s=>r+=`  ⚠ ${s.name} — Stock: ${s.currentStock} / Critical: ${s.criticalLevel} / Location: ${s.location||'—'}\n`); r+='\n'; }
+  if (lows.length) { r+=`LOW STOCK:\n`; lows.forEach(s=>r+=`  ! ${s.name} — Stock: ${s.currentStock} / Low: ${s.lowLevel}\n`); r+='\n'; }
+  if (!criticals.length&&!lows.length) r+=`All supplies at acceptable levels.\n\n`;
+  r+=`========================================\nEND OF REPORT\n========================================\n`;
+  turnoverText=r;
+  document.getElementById('turnoverPreview').textContent=r;
+  document.getElementById('turnoverPreview').style.display='block';
+  document.getElementById('executeTurnoverBtn').style.display='inline-block';
+  document.getElementById('downloadReportBtn').style.display='inline-block';
+}
+
+async function executeTurnover() {
+  if (!confirm('Execute turnover? This resets ALL tasks and notes across all devices.')) return;
+  const res=await api('POST','/reset'); if(!res) return;
+  state.completions={}; state.notes={};
+  document.getElementById('turnoverPreview').style.display='none';
+  document.getElementById('executeTurnoverBtn').style.display='none';
+  document.getElementById('downloadReportBtn').style.display='none';
+  turnoverText=''; renderAll(); showToast('Turnover complete — tasks reset ✓','success'); showTab('day');
+}
+
+function downloadReport() {
+  if (!turnoverText){showToast('Generate report first','error');return;}
+  const blob=new Blob([turnoverText],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const now=new Date();
+  a.download=`MSW_Turnover_${now.toISOString().slice(0,10)}_${now.getHours()}${String(now.getMinutes()).padStart(2,'0')}.txt`;
+  a.href=url; a.click(); URL.revokeObjectURL(url);
+  showToast('Report downloaded ✓','success');
+}
+
+// ==================== MODAL / UTILS ====================
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+let toastTimer;
+function showToast(msg,type='default'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type!=='default'?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
