@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,6 +74,15 @@
   .progress-counts{display:flex;gap:18px;margin-top:6px;}
   .prog-count{font-size:12px;color:var(--muted);}
   .prog-count strong{color:var(--white);}
+  .shift-progress-row{display:flex;align-items:center;gap:10px;}
+  .shift-progress-label{display:flex;align-items:center;gap:6px;width:110px;flex-shrink:0;}
+  .shift-progress-name{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+  .shift-progress-counts{font-size:11px;color:var(--muted);margin-left:auto;}
+  .progress-bar-day{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+  .progress-bar-night{background:linear-gradient(90deg,var(--accent),#7ab8ff);}
+  .progress-bar-fill.complete{background:linear-gradient(90deg,var(--green),#55e89a)!important;}
+  @keyframes celebrate{0%,100%{opacity:1;}50%{opacity:.7;}}
+  #celebrationBanner.show{animation:celebrate 1.5s ease infinite;}
 
   /* SYNC BAR */
   .sync-bar{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:6px 18px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);letter-spacing:1px;font-family:'Oswald',sans-serif;}
@@ -229,6 +237,14 @@
   .badge-supply{background:rgba(155,89,182,.2);color:#c39bd3;border:1px solid rgba(155,89,182,.3);}
   .filter-btn{padding:5px 13px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
   .filter-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1);}
+  .supply-card.needs-count{border-color:rgba(155,89,182,.5);background:rgba(155,89,182,.04);}
+  .supply-card.needs-count.critical{border-color:rgba(231,76,60,.5);}
+  .count-due-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:2px;font-family:'Oswald',sans-serif;letter-spacing:1px;background:rgba(155,89,182,.2);color:#c39bd3;border:1px solid rgba(155,89,182,.4);}
+  .count-overdue-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:2px;font-family:'Oswald',sans-serif;letter-spacing:1px;background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.4);}
+  .count-ok-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:2px;font-family:'Oswald',sans-serif;letter-spacing:1px;background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+  .last-count-info{font-size:12px;color:var(--green);font-weight:500;margin-top:3px;}
+  .btn-count{background:rgba(155,89,182,.2);border:1px solid rgba(155,89,182,.4);color:#c39bd3;padding:5px 11px;border-radius:3px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;white-space:nowrap;line-height:1;}
+  .btn-count:hover{background:rgba(155,89,182,.4);}
   ::-webkit-scrollbar{width:5px;height:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -285,16 +301,35 @@
   </header>
 
   <div class="progress-section">
-    <div class="progress-header">
-      <span class="progress-label">Shift Progress</span>
-      <span class="progress-pct" id="progressPct">0%</span>
+    <div class="shift-progress-row">
+      <div class="shift-progress-label">
+        <span>☀️</span>
+        <span class="shift-progress-name">Day Shift</span>
+        <span class="shift-progress-counts" id="dayProgressCounts">0/0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;">
+        <div class="progress-bar-track" style="flex:1"><div class="progress-bar-fill progress-bar-day" id="dayProgressBar" style="width:0%"></div></div>
+        <span class="progress-pct" id="dayProgressPct" style="min-width:38px;text-align:right;">0%</span>
+      </div>
     </div>
-    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
-    <div class="progress-counts">
-      <span class="prog-count"><strong id="doneCount">0</strong> Done</span>
-      <span class="prog-count"><strong id="pendingCount">0</strong> Pending</span>
+    <div class="shift-progress-row" style="margin-top:10px;">
+      <div class="shift-progress-label">
+        <span>🌙</span>
+        <span class="shift-progress-name">Night Shift</span>
+        <span class="shift-progress-counts" id="nightProgressCounts">0/0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;">
+        <div class="progress-bar-track" style="flex:1"><div class="progress-bar-fill progress-bar-night" id="nightProgressBar" style="width:0%"></div></div>
+        <span class="progress-pct" id="nightProgressPct" style="min-width:38px;text-align:right;">0%</span>
+      </div>
+    </div>
+    <div class="progress-counts" style="margin-top:10px;">
       <span class="prog-count"><strong id="overdueCount" style="color:var(--red)">0</strong> Overdue</span>
-      <span class="prog-count"><strong id="criticalCount" style="color:var(--red)">0</strong> Supplies Critical</span>
+      <span class="prog-count"><strong id="criticalCount" style="color:var(--red)">0</strong> Critical Supplies</span>
+      <span class="prog-count"><strong id="countDueCount" style="color:#c39bd3">0</strong> Counts Due</span>
+    </div>
+    <div id="celebrationBanner" style="display:none;margin-top:10px;background:linear-gradient(90deg,rgba(46,204,113,.15),rgba(201,168,76,.15));border:1px solid rgba(46,204,113,.4);border-radius:3px;padding:10px 14px;text-align:center;font-family:'Oswald',sans-serif;letter-spacing:2px;font-size:14px;color:var(--green);">
+      🎉 SHIFT COMPLETE — 100% ✓
     </div>
   </div>
 
@@ -353,6 +388,7 @@
         <button class="filter-btn" onclick="setSupplyFilter('critical',this)">🔴 Critical</button>
         <button class="filter-btn" onclick="setSupplyFilter('low',this)">🟡 Low</button>
         <button class="filter-btn" onclick="setSupplyFilter('ok',this)">🟢 OK</button>
+        <button class="filter-btn" onclick="setSupplyFilter('needs-count',this)">🟣 Needs Count</button>
       </div>
 
       <div id="supplyList"></div>
@@ -495,24 +531,29 @@
         <input type="number" id="supplyLow" min="0" placeholder="e.g. 20">
       </div>
       <div class="form-group">
-        <label>Storage Location</label>
-        <select id="supplyLocation">
-          <option value="">— Select Location —</option>
-          <option>Med Room</option>
-          <option>Supply Room</option>
-          <option>Nurses Station</option>
-          <option>OR</option>
-          <option>Nursery</option>
-          <option>LDRP 1</option>
-          <option>LDRP 2</option>
-          <option>LDRP 3</option>
-          <option>LDRP 4</option>
-          <option>Equipment Room</option>
-          <option>Kitchen</option>
-          <option>Sterile Room</option>
-          <option>Other</option>
-        </select>
+        <label>Recount Interval (days)</label>
+        <input type="number" id="supplyRecountDays" min="1" placeholder="e.g. 10" title="How many days between required counts">
       </div>
+    </div>
+
+    <div class="form-group">
+      <label>Storage Location</label>
+      <select id="supplyLocation">
+        <option value="">— Select Location —</option>
+        <option>Med Room</option>
+        <option>Supply Room</option>
+        <option>Nurses Station</option>
+        <option>OR</option>
+        <option>Nursery</option>
+        <option>LDRP 1</option>
+        <option>LDRP 2</option>
+        <option>LDRP 3</option>
+        <option>LDRP 4</option>
+        <option>Equipment Room</option>
+        <option>Kitchen</option>
+        <option>Sterile Room</option>
+        <option>Other</option>
+      </select>
     </div>
 
     <!-- Photo -->
@@ -575,6 +616,10 @@ function setSyncError() {
 }
 
 // ==================== STATE ====================
+
+
+const DEFAULT_SUPPLIES = [{"id":"sup_import_5","name":"Chux pads","barcode":"CRD7174","currentStock":9,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_6","name":"Wash Cloths","barcode":"CRD1004251","currentStock":18,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_7","name":"Large Gloves","barcode":"41660","currentStock":5,"criticalLevel":8,"lowLevel":10,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_8","name":"Medium Gloves","barcode":"41659","currentStock":6,"criticalLevel":15,"lowLevel":18,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_9","name":"Small Gloves","barcode":"41658","currentStock":3,"criticalLevel":8,"lowLevel":10,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_10","name":"Primary Tubing","barcode":"2420-0007","currentStock":27,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_11","name":"Secondary Tubing Medley","barcode":"BECMS350015","currentStock":50,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_12","name":"Micro Tubing ICUmedical","barcode":"SF3258-154","currentStock":100,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_13","name":"Blood Tubing","barcode":"BEC24770007","currentStock":38,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_14","name":"Burette Set","barcode":"CAR24410007","currentStock":42,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_15","name":"Size 6 Sterile Gloves","barcode":"31460-00","currentStock":2,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_16","name":"Size 6.5 Sterile Gloves","barcode":"MOLBX31465","currentStock":1,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_17","name":"Size 7 Sterile Gloves","barcode":"158031470","currentStock":1,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_18","name":"Size 7.5 Sterile Gloves","barcode":"MOL31475","currentStock":2,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_19","name":"Size 8 Sterile Gloves","barcode":"MOL31480","currentStock":2,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_20","name":"Size 8.5 Sterile Gloves","barcode":"MOL31485","currentStock":2,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_21","name":"Ext Tubing 4-Way Stopcock","barcode":"ICUB9575","currentStock":0,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_22","name":"Adult O2 Mask","barcode":"3280001041","currentStock":26,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_23","name":"Adult NRB","barcode":"TEL1059","currentStock":7,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_25","name":"Nebulizer","barcode":"TEL1884","currentStock":12,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 1","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_52","name":"Large Basin","barcode":"","currentStock":15,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_62","name":"Socks","barcode":"ENC80181","currentStock":18,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_63","name":"Tumblers","barcode":"MAI00112EA","currentStock":4,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_65","name":"SCDs","barcode":"3297DVT10DI","currentStock":4,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_71","name":"Urinals","barcode":"MDIDYND80235S","currentStock":15,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_72","name":"Kidney Basin","barcode":"MDIDYND80327N","currentStock":20,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_77","name":"Cart #3","barcode":"","currentStock":2,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_83","name":"Caviwipes","barcode":"MTXCS135150","currentStock":2,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_85","name":"Pink Tops","barcode":"2901456003","currentStock":8,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_87","name":"Blue Tops","barcode":"GREPG454334","currentStock":4,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_89","name":"Gold Tops","barcode":"GREBX456018","currentStock":6,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_90","name":"Green Tops","barcode":"367874","currentStock":0,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_91","name":"Red Tops","barcode":"367815","currentStock":3,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_97","name":"Peds Electrodes","barcode":"8900-2061","currentStock":2,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_102","name":"Bakri Postpartum Balloon","barcode":"J-SOSR-100500","currentStock":5,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_103","name":"Infant Mlncs Inf SPO2","barcode":"2512","currentStock":48,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_108","name":"Foley Catheter Tray","barcode":"CRB897216","currentStock":0,"criticalLevel":15,"lowLevel":18,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_110","name":"Medium Abdominal Binder","barcode":"79-89045","currentStock":7,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_112","name":"Ripening Balloon with Stylet","barcode":"COMEAG19891","currentStock":12,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_113","name":"Christmas Tree","barcode":"3280002555","currentStock":40,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_115","name":"EKG Electrodes","barcode":"CNM1700C050","currentStock":1,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_120","name":"Sani Cloths","barcode":"A22480","currentStock":10,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 2","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_123","name":"OB Pack","barcode":"3642088831","currentStock":16,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 4","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_124","name":"Sterile Gown","barcode":"HDH41734","currentStock":50,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 4","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_125","name":"Under Buttocks Drape","barcode":"CRD8487","currentStock":42,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 4","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_145","name":"Chromic Gut 1 GS 25","barcode":"COVCG905","currentStock":1,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Supply Room \u2014 Cart 5","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_170","name":"Betadine Cleanser 4 oz","barcode":"67618015104","currentStock":30,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_172","name":"Vacutainer","barcode":"GRE450230","currentStock":70,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_173","name":"0.9% NaCl 10 mL Flush","barcode":"PVBF306546","currentStock":70,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_182","name":"Vinyl Ring Cushion","barcode":"2867001819","currentStock":5,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_186","name":"Plastic Tape 1 in","barcode":"4509015271","currentStock":17,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_188","name":"Silk Tape 3 in","barcode":"MMM15383","currentStock":4,"criticalLevel":3,"lowLevel":3,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_189","name":"Silk Tape 1/2 in","barcode":"MMM15380D","currentStock":5,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_194","name":"Tegaderm","barcode":"6510012348943","currentStock":7,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_196","name":"3 Way Stopcock Ext Mil","barcode":"MX252L","currentStock":50,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_200","name":"21 G Needle","barcode":"","currentStock":30,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_202","name":"25G Needle","barcode":"","currentStock":50,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_204","name":"21G Butterfly","barcode":"367344","currentStock":45,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_205","name":"23G Butterfly","barcode":"723367283","currentStock":70,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_212","name":"2x2 Gauze","barcode":"CRD1806G","currentStock":6,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_218","name":"Heat Pack","barcode":"CIA030104","currentStock":26,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_219","name":"Cold Pack","barcode":"CRD11440900","currentStock":32,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_224","name":"Med Cups","barcode":"DYN4252","currentStock":10,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_236","name":"0.9% NaCl 1000 mL","barcode":"","currentStock":42,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_237","name":"LR 1000 mL","barcode":"F00338011704","currentStock":36,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_239","name":"FHM Paper","barcode":"5097M1910A","currentStock":35,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_240","name":"Pedialyte","barcode":"PEDIALYTE","currentStock":20,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Supply Room \u2014 Cart 6","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_252","name":"IPC 5000 IUPC","barcode":"IPC-5000E1","currentStock":18,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_253","name":"FSE Attachment Pad","barcode":"50000095","currentStock":36,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_257","name":"FHM Belt","barcode":"CRD31410270","currentStock":19,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_258","name":"Maternity Pads","barcode":"RSU1263","currentStock":2,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_259","name":"Peri Ice Pads","barcode":"CIA411204","currentStock":80,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_263","name":"Kiwi Vacuum","barcode":"VAC-6000MT","currentStock":10,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Triage","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_271","name":"Baby Hats","barcode":"KMP955","currentStock":154,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_272","name":"BD E-Z Scrub 160 Surgical Sponge","barcode":"371603","currentStock":177,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_273","name":"Heel Warmer","barcode":"IHW4X4GVT","currentStock":86,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_274","name":"Cord Clamp","barcode":"9423","currentStock":33,"criticalLevel":100,"lowLevel":125,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_275","name":"Cord Clamp Cutter","barcode":"6034727000","currentStock":113,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_276","name":"Bulb Suction","barcode":"143","currentStock":6,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_277","name":"Footprint Ink","barcode":"3100-00-PDE","currentStock":3,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_278","name":"Feeding Tube 8 Fr 16\"","barcode":"ENPU1680","currentStock":8,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_279","name":"Enteral Syringe 30 mL","barcode":"NTL30","currentStock":2,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_280","name":"Feeding Tube 5 Fr 16\"","barcode":"ENPV1650","currentStock":17,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_281","name":"Baby Body Wash Cardinal Health","barcode":"HYDB01L269BHS","currentStock":16,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_312","name":"Covidien CO2 detector","barcode":"PEDICAP 6","currentStock":17,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_332","name":"Bili Cap Philips","barcode":"PHCB80050","currentStock":59,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_334","name":"Quickheel Lancet","barcode":"BEC368101","currentStock":260,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_335","name":"Yellow Top Microtainer 50 ct","barcode":"723365974","currentStock":2,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_337","name":"Temp Probe Sticker 100 ct","barcode":"CRD31424792","currentStock":1,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_339","name":"Temp Probe","barcode":"2074816-001","currentStock":17,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_340","name":"10% Dextrose 500 mL","barcode":"BAX2B0163Q","currentStock":14,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_341","name":"Warmer SPO2","barcode":"2320","currentStock":38,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_343","name":"Circumstraint","barcode":"CRD31368858","currentStock":4,"criticalLevel":15,"lowLevel":18,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_345","name":"Bili Eye Mask Regular | EyeMax 2","barcode":"0710R300P01","currentStock":35,"criticalLevel":15,"lowLevel":18,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_352","name":"ABG Syringes","barcode":"4598P-2","currentStock":50,"criticalLevel":50,"lowLevel":62,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_354","name":"Size 1 Diaper 26 ct Pampers","barcode":"","currentStock":38,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_357","name":"Baby Wipes","barcode":"4725Q70040","currentStock":19,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_360","name":"Pumping Kit","barcode":"67099","currentStock":6,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_361","name":"Milk Bottles 12 ct","barcode":"87061","currentStock":4,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_362","name":"Enfamil Instant Formula 6 ct","barcode":"EV4J8B","currentStock":8,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_367","name":"24 mm Nipple Shield","barcode":"67203S","currentStock":25,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_368","name":"16 mm Nipple Shield","barcode":"67251S","currentStock":35,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_369","name":"20 mm Nipple Shield","barcode":"67218S","currentStock":38,"criticalLevel":30,"lowLevel":37,"recountDays":0,"location":"Nursery","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_373","name":"Mom and Baby Bands","barcode":"34449PDL","currentStock":1,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_374","name":"Large Bio Bag","barcode":"4352ON304055","currentStock":2,"criticalLevel":20,"lowLevel":25,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_375","name":"Small Bio Bag","barcode":"430400F116","currentStock":2,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_376","name":"Trash Bag S","barcode":"009/80150","currentStock":2,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_377","name":"Trash Bag L","barcode":"009/380297","currentStock":1,"criticalLevel":1,"lowLevel":1,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_378","name":"AAA Battery","barcode":"EN92","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_379","name":"AA Battery","barcode":"3575093","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_380","name":"Paper Shredder","barcode":"7490015039122","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_381","name":"Laminating Pads","barcode":"9330016412253","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_382","name":"Ballpoint Pen","barcode":"7520014845267","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_383","name":"Copy Paper","barcode":"4043367","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_384","name":"Single label stickers","barcode":"LD-R2BF5W","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_385","name":"XL Binder","barcode":"79-89048","currentStock":4,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_386","name":"Post-its 3x3","barcode":"778727","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_387","name":"Facemask","barcode":"PIPCS15300","currentStock":4,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_388","name":"Sharps Container","barcode":"3583008933","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_389","name":"Small Sharps Container Clear","barcode":"35838506SA","currentStock":8,"criticalLevel":10,"lowLevel":12,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_390","name":"Smart Sense Security Tag","barcode":"9450-6262-1","currentStock":5,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_391","name":"Dextrose 5% 100 mL Bag","barcode":"990792323","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_392","name":"Infant Band (Code Pink)","barcode":"945062621","currentStock":5,"criticalLevel":5,"lowLevel":6,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_393","name":"Large Post Its","barcode":"7530012733755","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_394","name":"Correction Tape","barcode":"7510015048940","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_395","name":"O2 Tank Holder","barcode":"S6013127","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_396","name":"Pillows","barcode":"41-2026-LTD","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_397","name":"Tape","barcode":"DER30409","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_398","name":"14 FR Suction Kit","barcode":"3583012142","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_399","name":"Curtain","barcode":"ICP-6100BP","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_400","name":"Ambu Bags","barcode":"AMB531615000","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_401","name":"Peds Stethoscope","barcode":"605BK","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_402","name":"Manual BP Cuff set","barcode":"WEL509823","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_403","name":"Neonatal Stethoscope","barcode":"676BK","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_404","name":"Sonicaid Fetal Doppler","barcode":"LUS-SRX-OP2XS","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_405","name":"Adult Stethoscopes","barcode":"MMM2176","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_406","name":"Pediatric SPO2","barcode":"6515016677701","currentStock":0,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_407","name":"Neonatal PT ID band","barcode":"10015358K","currentStock":1,"criticalLevel":0,"lowLevel":0,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"},{"id":"sup_import_408","name":"PPE Gown Infection Control","barcode":"ARIA69961C","currentStock":5,"criticalLevel":2,"lowLevel":2,"recountDays":0,"location":"Miscellaneous","photo":"","lastUpdatedBy":"Import","lastUpdated":"","lastCounted":"","lastCountedBy":"","createdAt":"2026-03-08T00:00:00.000Z"}];
+
 let state = { users:[], tasks:[], completions:{}, notes:{}, settings:{email:''}, supplies:[] };
 let currentUser = null;
 let activeFilter = 'all';
@@ -634,6 +679,8 @@ function buildDefaultTasks() {
   return tasks;
 }
 
+// 139 items from FY26 Supply Tracker
+
 // ==================== BOOT ====================
 async function boot() {
   const remote = await api('GET', '/state');
@@ -641,7 +688,7 @@ async function boot() {
   const needsSeed = !remote.users || remote.users.length === 0;
   if (needsSeed) {
     document.getElementById('setupBanner').style.display = 'block';
-    const defaultState = { users:DEFAULT_USERS, tasks:buildDefaultTasks(), completions:{}, notes:{}, settings:{email:''}, supplies:[] };
+    const defaultState = { users:DEFAULT_USERS, tasks:buildDefaultTasks(), completions:{}, notes:{}, settings:{email:''}, supplies:DEFAULT_SUPPLIES };
     await api('PUT', '/state', defaultState);
     state = defaultState;
   } else {
@@ -650,7 +697,7 @@ async function boot() {
     state.completions = remote.completions || {};
     state.notes       = remote.notes       || {};
     state.settings    = remote.settings    || {email:''};
-    state.supplies    = remote.supplies    || [];
+    state.supplies    = (remote.supplies && remote.supplies.length>0) ? remote.supplies : DEFAULT_SUPPLIES;
   }
   populateLoginUsers();
   document.getElementById('setupBanner').style.display = 'none';
@@ -860,7 +907,7 @@ function renderTaskCard(task) {
   return `<div class="task-card ${status}" id="card_${task.id}">
     <div class="task-main">
       <div class="task-checkbox" onclick="toggleTask('${task.id}')"></div>
-      <div class="task-body" onclick="toggleTask('${task.id}')">
+      <div class="task-body">
         <div class="task-name">${esc(task.name)}</div>
         ${task.instructions?`<div class="task-instruction">${esc(task.instructions)}</div>`:''}
         <div class="task-meta">${timeBadge}${compInfo}</div>
@@ -879,10 +926,23 @@ function renderTaskCard(task) {
 
 async function toggleTask(taskId) {
   const comp = state.completions[taskId];
-  const result = await api('POST','/complete',{taskId,userId:currentUser.id,userName:currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:''),undo:!!comp});
+  if (comp) {
+    // Unchecking — require confirmation
+    const completedAt = new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    if (!confirm(`Uncheck this task?\n\nCompleted by ${comp.userName} at ${completedAt}.\n\nThis will remove the completion record.`)) return;
+  }
+  // Stamp timestamp at the exact moment of confirmation
+  const now = new Date().toISOString();
+  const result = await api('POST','/complete',{
+    taskId,
+    userId: currentUser.id,
+    userName: currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:''),
+    undo: !!comp,
+    timestamp: now
+  });
   if (!result) return;
   state.completions = result.completions;
-  showToast(comp?'Task marked incomplete':'✓ Task completed!',comp?'default':'success');
+  showToast(comp ? 'Task unchecked' : '✓ Task completed!', comp ? 'default' : 'success');
   renderAll();
 }
 
@@ -901,17 +961,69 @@ async function saveNoteBtn(taskId) {
 // ==================== PROGRESS ====================
 function updateProgress() {
   const all = state.tasks||[];
-  const done = all.filter(t=>state.completions[t.id]).length;
+
+  // Per-shift counts
+  const dayTasks   = all.filter(t=>t.shift==='day'||t.shift==='both');
+  const nightTasks = all.filter(t=>t.shift==='night'||t.shift==='both');
+
+  const dayDone   = dayTasks.filter(t=>state.completions[t.id]).length;
+  const nightDone = nightTasks.filter(t=>state.completions[t.id]).length;
+  const dayTotal  = dayTasks.length;
+  const nightTotal= nightTasks.length;
+
+  const dayPct    = dayTotal===0  ? 0 : Math.round((dayDone/dayTotal)*100);
+  const nightPct  = nightTotal===0? 0 : Math.round((nightDone/nightTotal)*100);
+
   const overdue = all.filter(t=>getTaskStatus(t)==='overdue').length;
-  const total = all.length;
-  const pct = total===0?0:Math.round((done/total)*100);
   const criticalSupplies = (state.supplies||[]).filter(s=>getSupplyStatus(s)==='critical').length;
-  document.getElementById('progressPct').textContent = pct+'%';
-  document.getElementById('progressBar').style.width = pct+'%';
-  document.getElementById('doneCount').textContent = done;
-  document.getElementById('pendingCount').textContent = total-done;
+  const countDueSupplies = (state.supplies||[]).filter(s=>needsCount(s)).length;
+
+  // Day bar
+  const dayBar = document.getElementById('dayProgressBar');
+  const dayPctEl = document.getElementById('dayProgressPct');
+  const dayCounts = document.getElementById('dayProgressCounts');
+  if (dayBar) {
+    dayBar.style.width = dayPct+'%';
+    dayBar.className = 'progress-bar-fill progress-bar-day'+(dayPct===100?' complete':'');
+    dayPctEl.textContent = dayPct+'%';
+    dayPctEl.style.color = dayPct===100 ? 'var(--green)' : 'var(--gold)';
+    dayCounts.textContent = dayDone+'/'+dayTotal;
+  }
+
+  // Night bar
+  const nightBar = document.getElementById('nightProgressBar');
+  const nightPctEl = document.getElementById('nightProgressPct');
+  const nightCounts = document.getElementById('nightProgressCounts');
+  if (nightBar) {
+    nightBar.style.width = nightPct+'%';
+    nightBar.className = 'progress-bar-fill progress-bar-night'+(nightPct===100?' complete':'');
+    nightPctEl.textContent = nightPct+'%';
+    nightPctEl.style.color = nightPct===100 ? 'var(--green)' : 'var(--accent)';
+    nightCounts.textContent = nightDone+'/'+nightTotal;
+  }
+
+  // Celebration banner — show if current shift is 100%
+  const h = new Date().getHours();
+  const isDay = h>=6 && h<18;
+  const currentPct = isDay ? dayPct : nightPct;
+  const banner = document.getElementById('celebrationBanner');
+  if (banner) {
+    const show = currentPct===100 && (isDay ? dayTotal : nightTotal) > 0;
+    banner.style.display = show ? 'block' : 'none';
+    if (show) banner.classList.add('show');
+    else banner.classList.remove('show');
+    if (show) {
+      banner.textContent = isDay
+        ? '🎉 DAY SHIFT COMPLETE — 100% ✓'
+        : '🎉 NIGHT SHIFT COMPLETE — 100% ✓';
+    }
+  }
+
+  // Summary counts
   document.getElementById('overdueCount').textContent = overdue;
   document.getElementById('criticalCount').textContent = criticalSupplies;
+  const cdc = document.getElementById('countDueCount');
+  if (cdc) cdc.textContent = countDueSupplies;
 }
 
 // ==================== SUPPLIES ====================
@@ -924,6 +1036,23 @@ function getSupplyStatus(s) {
   return 'ok';
 }
 
+// Returns 'overdue', 'due-today', or 'ok' based on recount interval
+function getCountDueStatus(s) {
+  if (!s.recountDays || s.recountDays <= 0) return 'none';
+  const lastCount = s.lastCounted ? new Date(s.lastCounted) : (s.createdAt ? new Date(s.createdAt) : null);
+  if (!lastCount) return 'overdue'; // never counted, treat as overdue
+  const now = new Date();
+  const daysSince = (now - lastCount) / (1000 * 60 * 60 * 24);
+  if (daysSince >= s.recountDays) return 'overdue';
+  if (daysSince >= s.recountDays - 1) return 'due-today';
+  return 'ok';
+}
+
+function needsCount(s) {
+  const cs = getCountDueStatus(s);
+  return cs === 'overdue' || cs === 'due-today';
+}
+
 function renderSupplies() {
   const supplies = state.supplies||[];
   const search = (document.getElementById('supplySearch')||{}).value||'';
@@ -933,27 +1062,48 @@ function renderSupplies() {
   let filtered = supplies.filter(s => {
     const matchSearch = !q || s.name.toLowerCase().includes(q) || (s.barcode||'').toLowerCase().includes(q);
     const status = getSupplyStatus(s);
-    const matchFilter = activeSupplyFilter==='all' || activeSupplyFilter===status;
+    let matchFilter = false;
+    if (activeSupplyFilter==='all') matchFilter = true;
+    else if (activeSupplyFilter==='critical') matchFilter = status==='critical';
+    else if (activeSupplyFilter==='low') matchFilter = status==='low';
+    else if (activeSupplyFilter==='ok') matchFilter = status==='ok';
+    else if (activeSupplyFilter==='needs-count') matchFilter = needsCount(s);
     return matchSearch && matchFilter;
   });
 
-  // Sort: critical first, then low, then ok, then alphabetical
+  // Sort: needs-count + critical first, then by status, then alphabetical
   filtered.sort((a,b) => {
+    const nc = (x) => needsCount(x) ? 0 : 1;
     const order = {critical:0,low:1,ok:2};
+    const nca = nc(a), ncb = nc(b);
+    if (nca!==ncb) return nca-ncb;
     const sa = order[getSupplyStatus(a)]||2, sb = order[getSupplyStatus(b)]||2;
     if (sa!==sb) return sa-sb;
     return a.name.localeCompare(b.name);
   });
 
-  // Alert banner — items at/below critical
+  // Alert banners
   const criticals = supplies.filter(s=>getSupplyStatus(s)==='critical');
+  const countDue = supplies.filter(s=>needsCount(s));
   const banner = document.getElementById('supplyAlertBanner');
+  let bannerHtml = '';
   if (criticals.length>0) {
-    banner.innerHTML = `<div class="supply-alert-banner">
+    bannerHtml += `<div class="supply-alert-banner" style="margin-bottom:10px">
       <h4>🚨 ORDER REQUIRED — ${criticals.length} item${criticals.length>1?'s':''} at critical level</h4>
       ${criticals.map(s=>`<div class="supply-alert-item">${esc(s.name)} — Stock: ${s.currentStock} (Critical: ${s.criticalLevel}) · ${esc(s.location||'Location unknown')}</div>`).join('')}
     </div>`;
-  } else { banner.innerHTML = ''; }
+  }
+  if (countDue.length>0) {
+    bannerHtml += `<div class="supply-alert-banner" style="border-color:rgba(155,89,182,.4);background:rgba(155,89,182,.08);margin-bottom:10px">
+      <h4 style="color:#c39bd3">🟣 COUNT REQUIRED — ${countDue.length} item${countDue.length>1?'s':''} due for recount</h4>
+      ${countDue.map(s=>{
+        const cs=getCountDueStatus(s);
+        const days = s.lastCounted ? Math.floor((new Date()-new Date(s.lastCounted))/(1000*60*60*24)) : '?';
+        return `<div class="supply-alert-item" style="color:#c39bd3">${esc(s.name)} — ${cs==='overdue'?`${days} days since last count`:'Due today'} · ${esc(s.location||'')}</div>`;
+      }).join('')}
+    </div>`;
+  }
+  banner.innerHTML = bannerHtml;
 
   const container = document.getElementById('supplyList');
   if (!filtered.length) { container.innerHTML = '<div class="empty-state"><span class="icon">📦</span>No supplies match your search.</div>'; return; }
@@ -963,10 +1113,39 @@ function renderSupplies() {
 
   container.innerHTML = filtered.map(s => {
     const status = getSupplyStatus(s);
+    const countStatus = getCountDueStatus(s);
+    const isNeedsCount = needsCount(s);
     const stock = Number(s.currentStock)||0;
     const stockClass = status==='critical'?'critical':status==='low'?'low':'ok';
-    const updatedBy = s.lastUpdatedBy ? `Updated by ${esc(s.lastUpdatedBy)} · ${s.lastUpdated?new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}` : '';
-    return `<div class="supply-card ${status}" id="scard_${s.id}">
+
+    // Count due badge
+    let countBadge = '';
+    if (s.recountDays && s.recountDays > 0) {
+      if (countStatus==='overdue') {
+        const days = s.lastCounted ? Math.floor((new Date()-new Date(s.lastCounted))/(1000*60*60*24)) : '?';
+        countBadge = `<span class="count-overdue-badge">⚠ COUNT ${days}d OVERDUE</span>`;
+      } else if (countStatus==='due-today') {
+        countBadge = `<span class="count-due-badge">🟣 COUNT DUE TODAY</span>`;
+      } else {
+        const last = s.lastCounted ? new Date(s.lastCounted) : null;
+        const daysLeft = last ? Math.ceil(s.recountDays - (new Date()-last)/(1000*60*60*24)) : s.recountDays;
+        countBadge = `<span class="count-ok-badge">✓ Next count in ${daysLeft}d</span>`;
+      }
+    }
+
+    // Last count info
+    let lastCountInfo = '';
+    if (s.lastCounted && s.lastCountedBy) {
+      const ct = new Date(s.lastCounted);
+      lastCountInfo = `<div class="last-count-info">🔢 Last counted by ${esc(s.lastCountedBy)} · ${ct.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${ct.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    } else if (s.recountDays) {
+      lastCountInfo = `<div style="font-size:12px;color:var(--red);">⚠ Never counted</div>`;
+    }
+
+    // Last stock update
+    const updatedBy = s.lastUpdatedBy ? `Stock updated by ${esc(s.lastUpdatedBy)} · ${s.lastUpdated?new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}` : '';
+
+    return `<div class="supply-card ${status}${isNeedsCount?' needs-count':''}" id="scard_${s.id}">
       <div class="supply-card-main">
         <div class="supply-photo" onclick="viewSupplyPhoto('${s.id}')">
           ${s.photo?`<img src="${s.photo}" alt="${esc(s.name)}">`:'📦'}
@@ -977,7 +1156,8 @@ function renderSupplies() {
             ${s.barcode?`<span class="supply-id">ID: ${esc(s.barcode)}</span>`:''}
             ${s.location?`<span class="supply-location-badge">${esc(s.location)}</span>`:''}
           </div>
-          <div class="stock-critical-line">Critical: <span>${s.criticalLevel||'—'}</span> &nbsp; Low: <span>${s.lowLevel||'—'}</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">${countBadge}</div>
+          ${lastCountInfo}
         </div>
         <div class="supply-stock-section">
           <div class="stock-display">
@@ -991,6 +1171,7 @@ function renderSupplies() {
             <input type="number" value="${stock}" min="0" onchange="setStock('${s.id}',this.value)" id="stockInput_${s.id}">
             <button onclick="adjustStock('${s.id}',1)">+</button>
           </div>
+          <button class="btn-count" onclick="markCounted('${s.id}')">✓ Count</button>
           <button class="supply-expand-btn" onclick="toggleSupplyDetail('${s.id}')">more ▾</button>
         </div>
       </div>
@@ -1004,11 +1185,15 @@ function renderSupplies() {
           <div class="form-group" style="margin-bottom:0">
             <label>Low Level</label>
             <input type="number" value="${s.lowLevel||''}" min="0" placeholder="e.g. 20" onchange="updateLowLevel('${s.id}',this.value)">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Recount Every (days)</label>
+            <input type="number" value="${s.recountDays||''}" min="1" placeholder="e.g. 10" onchange="updateRecountDays('${s.id}',this.value)">
           </div>`:`
-          <div style="font-size:13px;color:var(--muted)">Critical/Low levels can be edited by Supply Rep or Admin.</div>
+          <div style="font-size:13px;color:var(--muted)">Critical/Low/Recount levels editable by Supply Rep or Admin only.</div>
           `}
         </div>
-        ${updatedBy?`<div class="supply-updated">🕐 ${updatedBy}</div>`:''}
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;">${updatedBy?`🕐 ${updatedBy}`:''}</div>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
           <button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">✏️ Edit</button>
           ${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteSupply('${s.id}')">🗑 Delete</button>`:''}
@@ -1061,6 +1246,26 @@ async function updateLowLevel(supplyId, val) {
   renderSupplies();
 }
 
+async function updateRecountDays(supplyId, val) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  s.recountDays = parseInt(val)||0;
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+  showToast('Recount interval updated ✓','success');
+}
+
+async function markCounted(supplyId) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  s.lastCounted = new Date().toISOString();
+  s.lastCountedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  await api('PUT','/supplies',{supplies:state.supplies});
+  renderSupplies();
+  updateProgress();
+  showToast(`✓ Count recorded for ${s.name}`,'success');
+}
+
 // Supply photo preview
 function previewSupplyPhoto() {
   const file = document.getElementById('supplyPhoto').files[0];
@@ -1085,7 +1290,7 @@ function viewSupplyPhoto(supplyId) {
 function openSupplyModal(supplyId) {
   document.getElementById('editSupplyId').value = supplyId||'';
   document.getElementById('supplyModalTitle').textContent = supplyId?'Edit Supply Item':'Add Supply Item';
-  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow'].forEach(id => document.getElementById(id).value='');
+  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => document.getElementById(id).value='');
   document.getElementById('supplyLocation').value = '';
   document.getElementById('supplyPhotoPreview').classList.remove('show');
   document.getElementById('supplyPhoto').value = '';
@@ -1097,6 +1302,7 @@ function openSupplyModal(supplyId) {
       document.getElementById('supplyStock').value = s.currentStock??'';
       document.getElementById('supplyCritical').value = s.criticalLevel||'';
       document.getElementById('supplyLow').value = s.lowLevel||'';
+      document.getElementById('supplyRecountDays').value = s.recountDays||'';
       document.getElementById('supplyLocation').value = s.location||'';
       if (s.photo) { const img=document.getElementById('supplyPhotoPreview'); img.src=s.photo; img.classList.add('show'); }
     }
@@ -1127,6 +1333,7 @@ async function saveSupply() {
     currentStock: parseInt(document.getElementById('supplyStock').value)||0,
     criticalLevel: parseInt(document.getElementById('supplyCritical').value)||0,
     lowLevel: parseInt(document.getElementById('supplyLow').value)||0,
+    recountDays: parseInt(document.getElementById('supplyRecountDays').value)||0,
     location: document.getElementById('supplyLocation').value,
   };
   if (photoData) supplyData.photo = photoData;
