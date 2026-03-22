@@ -177,9 +177,10 @@
   .stock-critical-line span{color:var(--amber);}
   .supply-actions{display:flex;gap:6px;flex-direction:column;align-items:center;}
   .stock-adjust{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;padding:4px 8px;}
-  .stock-adjust button{background:none;border:none;color:var(--gold);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;font-family:'Oswald',sans-serif;transition:color .2s;}
-  .stock-adjust button:hover{color:var(--gold-light);}
-  .stock-adjust input{width:44px;background:none;border:none;color:var(--white);font-family:'Oswald',sans-serif;font-size:16px;text-align:center;outline:none;}
+  .stock-adjust button{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.6);border-radius:3px;color:var(--gold-light);font-size:26px;cursor:pointer;padding:3px 13px;line-height:1;font-family:'Oswald',sans-serif;transition:all .2s;font-weight:700;}
+  .stock-adjust button:hover{background:rgba(201,168,76,.35);color:#fff;border-color:var(--gold-light);}
+  .stock-adjust input{width:56px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Oswald',sans-serif;font-size:17px;text-align:center;outline:none;padding:3px 0;}
+  .stock-adjust input:focus{border-color:var(--gold);}
   .supply-expand-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 0;transition:color .2s;white-space:nowrap;}
   .supply-expand-btn:hover{color:var(--gold);}
   .supply-detail-panel{border-top:1px solid var(--border);padding:12px 14px;display:none;background:rgba(0,0,0,.15);}
@@ -201,6 +202,10 @@
   .admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   @media(max-width:480px){.admin-form-row{grid-template-columns:1fr;}}
   .time-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .dow-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .dow-check{display:none;}
+  .dow-label{display:inline-flex;align-items:center;justify-content:center;width:36px;height:32px;border:1px solid var(--border);border-radius:3px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:all .2s;user-select:none;}
+  .dow-check:checked + .dow-label{background:rgba(201,168,76,.2);border-color:var(--gold);color:var(--gold);}
 
   /* TURNOVER */
   .turnover-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:22px;max-width:600px;margin:0 auto;}
@@ -249,6 +254,10 @@
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   select option{background:#0f1e35;color:#f0f4ff;}
+  .dow-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .dow-btn{padding:5px 10px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;user-select:none;}
+  .dow-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.12);}
+  .dow-badge{display:inline-block;font-size:10px;padding:1px 5px;border-radius:2px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);font-family:'Oswald',sans-serif;letter-spacing:1px;margin-left:4px;}
   @media(max-width:480px){.login-card{padding:30px 22px;}.app-header{padding:0 10px;gap:7px;}.app-content{padding:12px;}.header-title{font-size:13px;}}
 </style>
 </head>
@@ -489,6 +498,30 @@
         <div><label style="font-size:11px;color:var(--muted)">Priority</label><select id="taskPriority"><option value="normal">Normal</option><option value="high">High</option></select></div>
       </div>
     </div>
+    <div class="form-group">
+      <label>Active Days <span style="font-size:11px;color:var(--muted);font-family:'Source Sans 3',sans-serif;letter-spacing:0;text-transform:none;">(uncheck to hide task on that day)</span></label>
+      <div class="dow-row">
+        <input type="checkbox" class="dow-check" id="dow_mon" value="mon" checked><label class="dow-label" for="dow_mon">MON</label>
+        <input type="checkbox" class="dow-check" id="dow_tue" value="tue" checked><label class="dow-label" for="dow_tue">TUE</label>
+        <input type="checkbox" class="dow-check" id="dow_wed" value="wed" checked><label class="dow-label" for="dow_wed">WED</label>
+        <input type="checkbox" class="dow-check" id="dow_thu" value="thu" checked><label class="dow-label" for="dow_thu">THU</label>
+        <input type="checkbox" class="dow-check" id="dow_fri" value="fri" checked><label class="dow-label" for="dow_fri">FRI</label>
+        <input type="checkbox" class="dow-check" id="dow_sat" value="sat" checked><label class="dow-label" for="dow_sat">SAT</label>
+        <input type="checkbox" class="dow-check" id="dow_sun" value="sun" checked><label class="dow-label" for="dow_sun">SUN</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Days Required <span style="font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0">(leave all off = every day)</span></label>
+      <div class="dow-row">
+        <button type="button" class="dow-btn" data-day="0" onclick="toggleDow(this)">SUN</button>
+        <button type="button" class="dow-btn" data-day="1" onclick="toggleDow(this)">MON</button>
+        <button type="button" class="dow-btn" data-day="2" onclick="toggleDow(this)">TUE</button>
+        <button type="button" class="dow-btn" data-day="3" onclick="toggleDow(this)">WED</button>
+        <button type="button" class="dow-btn" data-day="4" onclick="toggleDow(this)">THU</button>
+        <button type="button" class="dow-btn" data-day="5" onclick="toggleDow(this)">FRI</button>
+        <button type="button" class="dow-btn" data-day="6" onclick="toggleDow(this)">SAT</button>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-secondary btn-sm" onclick="closeModal('taskModal')">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="saveTask()">Save Task</button>
@@ -567,6 +600,24 @@
     <div class="modal-actions">
       <button class="btn btn-secondary btn-sm" onclick="closeModal('supplyModal')">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="saveSupply()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO ONLY MODAL (staff) -->
+<div class="modal-overlay" id="photoModal">
+  <div class="modal" style="max-width:380px;">
+    <h2>📷 Update Item Photo</h2>
+    <input type="hidden" id="photoModalSupplyId">
+    <div id="photoModalName" style="font-size:14px;color:var(--gold);margin-bottom:14px;font-family:'Oswald',sans-serif;letter-spacing:1px;"></div>
+    <div class="form-group">
+      <label>New Photo</label>
+      <input type="file" id="photoModalFile" accept="image/*" capture="environment" onchange="previewPhotoModal()" style="font-size:13px;padding:8px;">
+      <img id="photoModalPreview" class="photo-preview" alt="Preview">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('photoModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="savePhotoOnly()">Save Photo</button>
     </div>
   </div>
 </div>
@@ -897,7 +948,12 @@ function renderAll() { renderTaskList('day'); renderTaskList('night'); updatePro
 function renderTaskList(shift) {
   const container = document.getElementById(shift+'TaskList');
   if (!container) return;
-  const tasks = (state.tasks||[]).filter(t => t.shift===shift||t.shift==='both');
+  const todayDow = new Date().getDay(); // 0=Sun … 6=Sat
+  const tasks = (state.tasks||[]).filter(t => {
+    if (t.shift!==shift && t.shift!=='both') return false;
+    if (!t.days || t.days.length===0) return true;
+    return t.days.includes(todayDow);
+  });
   const cats = {};
   tasks.forEach(t => { const c=t.category||'General'; if(!cats[c]) cats[c]=[]; cats[c].push(t); });
   let html = '';
@@ -908,7 +964,7 @@ function renderTaskList(shift) {
     else if (activeFilter==='overdue') filtered=catTasks.filter(t=>getTaskStatus(t)==='overdue');
     if (!filtered.length) return;
     const done = catTasks.filter(t=>getTaskStatus(t)==='completed').length;
-    html += `<div class="section-header"><span class="section-title">${esc(cat)}</span><div class="section-line"></div><span class="section-count">${done}/${catTasks.length}</span></div>`;
+    html += '<div class="section-header"><span class="section-title">'+esc(cat)+'</span><div class="section-line"></div><span class="section-count">'+done+'/'+catTasks.length+'</span></div>';
     filtered.forEach(task => { html += renderTaskCard(task); });
   });
   container.innerHTML = html || '<div class="empty-state"><span class="icon">✓</span>No tasks match filter.</div>';
@@ -927,6 +983,9 @@ function renderTaskCard(task) {
     else if (status==='due-soon') timeBadge=`<span class="task-time-badge time-soon">⏰ Due ${lbl}</span>`;
     else timeBadge=`<span class="task-time-badge time-normal">🕐 Due ${lbl}</span>`;
   }
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayBadge = (task.days && task.days.length>0 && task.days.length<7)
+    ? `<span class="dow-badge">${task.days.map(d=>DAYS[d]).join(' · ')}</span>` : '';
   let compInfo = comp ? `<span class="task-completed-info">✓ ${esc(comp.userName)} · ${new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</span>` : '';
   return `<div class="task-card ${status}" id="card_${task.id}">
     <div class="task-main">
@@ -934,7 +993,7 @@ function renderTaskCard(task) {
       <div class="task-body">
         <div class="task-name">${esc(task.name)}</div>
         ${task.instructions?`<div class="task-instruction">${esc(task.instructions)}</div>`:''}
-        <div class="task-meta">${timeBadge}${compInfo}</div>
+        <div class="task-meta">${timeBadge}${compInfo}${dayBadge}</div>
       </div>
       <div class="task-actions"><button class="btn-note ${hasNote?'has-note':''}" onclick="toggleNote('${task.id}')">📝</button></div>
     </div>
@@ -1219,7 +1278,10 @@ function renderSupplies() {
         </div>
         <div style="font-size:12px;color:var(--muted);margin-top:8px;">${updatedBy?`🕐 ${updatedBy}`:''}</div>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">✏️ Edit</button>
+          ${canEditCritical
+            ? `<button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">✏️ Edit</button>`
+            : `<button class="btn btn-secondary btn-sm" onclick="openPhotoModal('${s.id}')">📷 Update Photo</button>`
+          }
           ${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteSupply('${s.id}')">🗑 Delete</button>`:''}
         </div>
       </div>
@@ -1279,6 +1341,50 @@ async function updateRecountDays(supplyId, val) {
   showToast('Recount interval updated ✓','success');
 }
 
+function openPhotoModal(supplyId) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  document.getElementById('photoModalSupplyId').value = supplyId;
+  document.getElementById('photoModalName').textContent = s.name;
+  document.getElementById('photoModalFile').value = '';
+  const prev = document.getElementById('photoModalPreview');
+  if (s.photo) { prev.src=s.photo; prev.classList.add('show'); }
+  else { prev.classList.remove('show'); }
+  document.getElementById('photoModal').classList.add('open');
+}
+
+function previewPhotoModal() {
+  const file = document.getElementById('photoModalFile').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('photoModalPreview');
+    img.src = e.target.result;
+    img.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function savePhotoOnly() {
+  const supplyId = document.getElementById('photoModalSupplyId').value;
+  const file = document.getElementById('photoModalFile').files[0];
+  if (!file) { showToast('Please select a photo','error'); return; }
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  const photoData = await new Promise(res => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.readAsDataURL(file);
+  });
+  s.photo = photoData;
+  s.lastUpdatedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  s.lastUpdated = new Date().toISOString();
+  await api('PUT','/supplies',{supplies:state.supplies});
+  closeModal('photoModal');
+  renderSupplies();
+  showToast('Photo updated ✓','success');
+}
+
 async function markCounted(supplyId) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
@@ -1312,7 +1418,28 @@ function viewSupplyPhoto(supplyId) {
 
 // Supply modal
 function openSupplyModal(supplyId) {
+  const isPrivileged = currentUser && (currentUser.role==='admin' || currentUser.role==='supply_rep');
   document.getElementById('editSupplyId').value = supplyId||'';
+  // Regular staff editing existing item: show photo-only mode
+  if (supplyId && !isPrivileged) {
+    document.getElementById('supplyModalTitle').textContent = 'Update Item Photo';
+    ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value=''; el.closest('.form-group,.admin-form-row')&&(el.disabled=true); }
+    });
+    document.getElementById('supplyLocation').disabled=true;
+    document.getElementById('supplyPhotoPreview').classList.remove('show');
+    document.getElementById('supplyPhoto').value='';
+    const s=(state.supplies||[]).find(x=>x.id===supplyId);
+    if (s&&s.photo){const img=document.getElementById('supplyPhotoPreview');img.src=s.photo;img.classList.add('show');}
+    document.getElementById('supplyModal').classList.add('open');
+    return;
+  }
+  // Re-enable fields for privileged users
+  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.disabled=false;
+  });
+  document.getElementById('supplyLocation').disabled=false;
   document.getElementById('supplyModalTitle').textContent = supplyId?'Edit Supply Item':'Add Supply Item';
   ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => document.getElementById(id).value='');
   document.getElementById('supplyLocation').value = '';
@@ -1335,13 +1462,11 @@ function openSupplyModal(supplyId) {
 }
 
 async function saveSupply() {
-  const name = document.getElementById('supplyName').value.trim();
-  if (!name) { showToast('Supply name required','error'); return; }
-
   const editId = document.getElementById('editSupplyId').value;
-  let photoData = null;
+  const isPrivileged = currentUser && (currentUser.role==='admin' || currentUser.role==='supply_rep');
 
-  // Read photo if selected
+  // Read photo if selected (all users)
+  let photoData = null;
   const photoFile = document.getElementById('supplyPhoto').files[0];
   if (photoFile) {
     photoData = await new Promise(res => {
@@ -1350,6 +1475,26 @@ async function saveSupply() {
       r.readAsDataURL(photoFile);
     });
   }
+
+  if (editId && !isPrivileged) {
+    // Regular staff: only update photo
+    const s = state.supplies.find(x=>x.id===editId);
+    if (s && photoData) {
+      s.photo = photoData;
+      const res = await api('PUT','/supplies',{supplies:state.supplies});
+      if (!res) return;
+      closeModal('supplyModal');
+      renderSupplies();
+      showToast('Photo updated ✓','success');
+    } else {
+      showToast('Only Supply Rep or Admin can edit supply details','error');
+      closeModal('supplyModal');
+    }
+    return;
+  }
+
+  const name = document.getElementById('supplyName').value.trim();
+  if (!name) { showToast('Supply name required','error'); return; }
 
   const supplyData = {
     name,
@@ -1364,9 +1509,9 @@ async function saveSupply() {
 
   if (editId) {
     const s = state.supplies.find(x=>x.id===editId);
-    if (s) { Object.assign(s, supplyData); if (!photoData && s.photo) supplyData.photo = s.photo; Object.assign(s, supplyData); }
+    if (s) { if (!photoData && s.photo) supplyData.photo = s.photo; Object.assign(s, supplyData); }
   } else {
-    state.supplies.push({ id:'sup_'+Date.now(), ...supplyData, lastUpdatedBy:'', lastUpdated:'' });
+    state.supplies.push({ id:'sup_'+Date.now(), ...supplyData, lastUpdatedBy:'', lastUpdated:'', lastCounted:'', lastCountedBy:'', createdAt: new Date().toISOString() });
   }
 
   const res = await api('PUT','/supplies',{supplies:state.supplies});
@@ -1442,17 +1587,23 @@ function renderUserList() {
 function renderAdminTaskList() {
   const c = document.getElementById('adminTaskList');
   if (!c) return;
-  c.innerHTML = (state.tasks||[]).map(t=>`
-    <div class="task-list-item">
+  const dayMap=['mon','tue','wed','thu','fri','sat','sun'];
+  c.innerHTML = (state.tasks||[]).map(t=>{
+    const days=t.activeDays||dayMap;
+    const allDays=days.length===7;
+    const dayStr=allDays?'Every day':days.map(d=>d.charAt(0).toUpperCase()+d.slice(1,3)).join(', ');
+    return `<div class="task-list-item">
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:500">${esc(t.name)}</div>
         <div style="font-size:11px;color:var(--muted)">${esc(t.category||'')} · ${t.shift}${t.dueTime?' · Due '+t.dueTime:''}</div>
+        <div style="font-size:11px;color:${allDays?'var(--muted)':'var(--gold)'}">&#128197; ${dayStr}</div>
       </div>
       <div style="display:flex;gap:5px">
         <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${t.id}')">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Del</button>
       </div>
-    </div>`).join('')||'<div class="empty-state" style="padding:16px 0">No tasks.</div>';
+    </div>`;
+  }).join('')||'<div class="empty-state" style="padding:16px 0">No tasks.</div>';
 }
 
 // ==================== USER MODAL ====================
@@ -1500,9 +1651,23 @@ function openTaskModal(taskId) {
   document.getElementById('taskShift').value='day';
   document.getElementById('taskWarnMins').value='30';
   document.getElementById('taskPriority').value='normal';
+  document.querySelectorAll('.dow-btn').forEach(b=>b.classList.remove('active'));
   if (taskId) {
     const t=(state.tasks||[]).find(x=>x.id===taskId);
-    if (t) { document.getElementById('taskName').value=t.name; document.getElementById('taskInstructions').value=t.instructions||''; document.getElementById('taskShift').value=t.shift; document.getElementById('taskCategory').value=t.category||''; document.getElementById('taskDueTime').value=t.dueTime||''; document.getElementById('taskWarnMins').value=t.warnMins||30; document.getElementById('taskPriority').value=t.priority||'normal'; }
+    if (t) {
+      document.getElementById('taskName').value=t.name;
+      document.getElementById('taskInstructions').value=t.instructions||'';
+      document.getElementById('taskShift').value=t.shift;
+      document.getElementById('taskCategory').value=t.category||'';
+      document.getElementById('taskDueTime').value=t.dueTime||'';
+      document.getElementById('taskWarnMins').value=t.warnMins||30;
+      document.getElementById('taskPriority').value=t.priority||'normal';
+      if (t.days && t.days.length>0) {
+        document.querySelectorAll('.dow-btn').forEach(b=>{
+          if (t.days.includes(Number(b.dataset.day))) b.classList.add('active');
+        });
+      }
+    }
   }
   document.getElementById('taskModal').classList.add('open');
 }
@@ -1510,7 +1675,10 @@ function openTaskModal(taskId) {
 async function saveTask() {
   const name=document.getElementById('taskName').value.trim();
   if (!name) { showToast('Task name required','error'); return; }
-  const taskData={name,instructions:document.getElementById('taskInstructions').value.trim(),shift:document.getElementById('taskShift').value,category:document.getElementById('taskCategory').value.trim()||'General',dueTime:document.getElementById('taskDueTime').value,warnMins:parseInt(document.getElementById('taskWarnMins').value)||30,priority:document.getElementById('taskPriority').value};
+  const allDays=['mon','tue','wed','thu','fri','sat','sun'];
+  const activeDays=allDays.filter(d=>{const el=document.getElementById('dow_'+d);return el&&el.checked;});
+  const selectedDays=[...document.querySelectorAll('.dow-btn.active')].map(b=>Number(b.dataset.day));
+  const taskData={name,instructions:document.getElementById('taskInstructions').value.trim(),shift:document.getElementById('taskShift').value,category:document.getElementById('taskCategory').value.trim()||'General',dueTime:document.getElementById('taskDueTime').value,warnMins:parseInt(document.getElementById('taskWarnMins').value)||30,priority:document.getElementById('taskPriority').value,days:selectedDays};
   const editId=document.getElementById('editTaskId').value;
   if (editId){const t=state.tasks.find(x=>x.id===editId);if(t)Object.assign(t,taskData);}
   else state.tasks.push({id:'task_'+Date.now(),...taskData});
@@ -1687,6 +1855,7 @@ async function copyReport() {
 }
 
 // ==================== MODAL / UTILS ====================
+function toggleDow(btn) { btn.classList.toggle('active'); }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(el=>{
   el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
