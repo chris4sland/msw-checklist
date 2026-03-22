@@ -743,6 +743,7 @@ function buildDefaultTasks() {
 
 // ==================== BOOT ====================
 async function boot() {
+  // Load core state (users, tasks, completions, notes, settings) — no supplies
   const remote = await api('GET', '/state');
   if (!remote) {
     document.getElementById('loginUser').innerHTML = '<option>— Connection failed. Check Worker. —</option>';
@@ -757,22 +758,25 @@ async function boot() {
   const needsSeed = !remote.users || remote.users.length === 0;
   if (needsSeed) {
     document.getElementById('setupBanner').style.display = 'block';
-    const defaultState = { users:DEFAULT_USERS, tasks:buildDefaultTasks(), completions:{}, notes:{}, settings:{email:''}, supplies:DEFAULT_SUPPLIES };
+    // Seed core state (no supplies here — too large)
+    const defaultState = { users:DEFAULT_USERS, tasks:buildDefaultTasks(), completions:{}, notes:{}, settings:{email:''} };
     await api('PUT', '/state', defaultState);
-    state = defaultState;
+    state.users       = defaultState.users;
+    state.tasks       = defaultState.tasks;
+    state.completions = defaultState.completions;
+    state.notes       = defaultState.notes;
+    state.settings    = defaultState.settings;
+    // Seed supplies separately
+    await api('PUT', '/supplies', {supplies: DEFAULT_SUPPLIES});
+    state.supplies = DEFAULT_SUPPLIES;
   } else {
     state.users       = remote.users       || DEFAULT_USERS;
     state.tasks       = remote.tasks       || buildDefaultTasks();
     state.completions = remote.completions || {};
     state.notes       = remote.notes       || {};
     state.settings    = remote.settings    || {email:''};
-    // If supplies missing from KV, seed them now and save back
-    if (!remote.supplies || remote.supplies.length === 0) {
-      state.supplies = DEFAULT_SUPPLIES;
-      await api('PUT', '/supplies', {supplies: DEFAULT_SUPPLIES});
-    } else {
-      state.supplies = remote.supplies;
-    }
+    // Supplies loaded lazily when Supplies tab is opened
+    state.supplies    = [];
   }
   populateLoginUsers();
   document.getElementById('setupBanner').style.display = 'none';
@@ -783,6 +787,7 @@ boot();
 function startPolling() {
   if (pollInterval) clearInterval(pollInterval);
   pollInterval = setInterval(async () => {
+    // Poll core state only — supplies polled separately when tab is active
     const remote = await api('GET', '/state');
     if (!remote) return;
     state.completions = remote.completions || {};
@@ -790,10 +795,12 @@ function startPolling() {
     state.users       = remote.users       || state.users;
     state.tasks       = remote.tasks       || state.tasks;
     state.settings    = remote.settings    || state.settings;
-    state.supplies    = remote.supplies    || state.supplies;
     renderAll();
-    renderSupplies();
     updateProgress();
+    // If supplies tab is currently visible, refresh supplies too
+    if (document.getElementById('tabSupplies').classList.contains('active')) {
+      loadSupplies(false); // silent refresh, no loading indicator
+    }
   }, 15000);
 }
 
@@ -808,10 +815,12 @@ async function manualRefresh() {
     state.users       = remote.users       || state.users;
     state.tasks       = remote.tasks       || state.tasks;
     state.settings    = remote.settings    || state.settings;
-    state.supplies    = remote.supplies    || state.supplies;
     renderAll();
-    renderSupplies();
     updateProgress();
+    // Refresh supplies if on that tab
+    if (document.getElementById('tabSupplies').classList.contains('active')) {
+      await loadSupplies(false);
+    }
     showToast('Refreshed ✓', 'success');
   }
   setTimeout(() => btn.classList.remove('spinning'), 600);
@@ -879,7 +888,6 @@ function showApp() {
   document.getElementById('adminTabBtn').style.display = currentUser.role==='admin' ? '' : 'none';
   loadSettingsUI();
   renderAll();
-  renderSupplies();
   updateHeader();
   showTab('day');
   startPolling();
@@ -904,7 +912,7 @@ function showTab(name) {
     if ((b.getAttribute('onclick')||'').includes("'"+name+"'")) b.classList.add('active');
   });
   if (name==='admin') renderAdmin();
-  if (name==='supplies') renderSupplies();
+  if (name==='supplies') loadSupplies(true);
   updateProgress();
 }
 
@@ -1110,6 +1118,45 @@ function updateProgress() {
 }
 
 // ==================== SUPPLIES ====================
+let suppliesLoaded = false;
+let suppliesLoading = false;
+
+async function loadSupplies(showIndicator=true) {
+  if (suppliesLoading) return;
+  suppliesLoading = true;
+
+  if (showIndicator) {
+    const container = document.getElementById('supplyList');
+    if (container) container.innerHTML = '<div class="empty-state"><span class="icon">⏳</span>Loading supplies…</div>';
+  }
+
+  const result = await api('GET', '/supplies');
+  suppliesLoading = false;
+
+  if (!result) return;
+
+  // First load: check if KV is empty and seed if so
+  if (!result.supplies || result.supplies.length === 0) {
+    if (!suppliesLoaded) {
+      // Seed supplies to KV for the first time
+      const seedResult = await api('PUT', '/supplies', {supplies: DEFAULT_SUPPLIES});
+      if (seedResult) {
+        state.supplies = DEFAULT_SUPPLIES;
+        suppliesLoaded = true;
+        renderSupplies();
+        updateProgress();
+        return;
+      }
+    }
+  }
+
+  state.supplies = result.supplies || [];
+  suppliesLoaded = true;
+  renderSupplies();
+  updateProgress();
+}
+
+// ==================== SUPPLIES RENDER ====================
 function getSupplyStatus(s) {
   const stock = Number(s.currentStock)||0;
   const critical = Number(s.criticalLevel)||0;
