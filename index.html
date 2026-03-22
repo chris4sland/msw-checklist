@@ -1651,7 +1651,7 @@ function openTaskModal(taskId) {
   document.getElementById('taskShift').value='day';
   document.getElementById('taskWarnMins').value='30';
   document.getElementById('taskPriority').value='normal';
-  document.querySelectorAll('.dow-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#taskModal .dow-btn').forEach(b=>b.classList.remove('active'));
   if (taskId) {
     const t=(state.tasks||[]).find(x=>x.id===taskId);
     if (t) {
@@ -1663,7 +1663,7 @@ function openTaskModal(taskId) {
       document.getElementById('taskWarnMins').value=t.warnMins||30;
       document.getElementById('taskPriority').value=t.priority||'normal';
       if (t.days && t.days.length>0) {
-        document.querySelectorAll('.dow-btn').forEach(b=>{
+        document.querySelectorAll('#taskModal .dow-btn').forEach(b=>{
           if (t.days.includes(Number(b.dataset.day))) b.classList.add('active');
         });
       }
@@ -1675,16 +1675,31 @@ function openTaskModal(taskId) {
 async function saveTask() {
   const name=document.getElementById('taskName').value.trim();
   if (!name) { showToast('Task name required','error'); return; }
-  const allDays=['mon','tue','wed','thu','fri','sat','sun'];
-  const activeDays=allDays.filter(d=>{const el=document.getElementById('dow_'+d);return el&&el.checked;});
-  const selectedDays=[...document.querySelectorAll('.dow-btn.active')].map(b=>Number(b.dataset.day));
-  const taskData={name,instructions:document.getElementById('taskInstructions').value.trim(),shift:document.getElementById('taskShift').value,category:document.getElementById('taskCategory').value.trim()||'General',dueTime:document.getElementById('taskDueTime').value,warnMins:parseInt(document.getElementById('taskWarnMins').value)||30,priority:document.getElementById('taskPriority').value,days:selectedDays};
+  // Read ONLY from the dow-btn buttons in the modal — scoped to #taskModal
+  const selectedDays=[...document.querySelectorAll('#taskModal .dow-btn.active')].map(b=>Number(b.dataset.day));
+  const taskData={
+    name,
+    instructions: document.getElementById('taskInstructions').value.trim(),
+    shift: document.getElementById('taskShift').value,
+    category: document.getElementById('taskCategory').value.trim()||'General',
+    dueTime: document.getElementById('taskDueTime').value,
+    warnMins: parseInt(document.getElementById('taskWarnMins').value)||30,
+    priority: document.getElementById('taskPriority').value,
+    days: selectedDays   // [] means show every day
+  };
   const editId=document.getElementById('editTaskId').value;
-  if (editId){const t=state.tasks.find(x=>x.id===editId);if(t)Object.assign(t,taskData);}
-  else state.tasks.push({id:'task_'+Date.now(),...taskData});
+  if (editId){
+    const t=state.tasks.find(x=>x.id===editId);
+    if(t) Object.assign(t,taskData);
+  } else {
+    state.tasks.push({id:'task_'+Date.now(),...taskData});
+  }
   const res=await api('PUT','/tasks',{tasks:state.tasks});
   if (!res) return;
-  closeModal('taskModal'); renderAdminTaskList(); renderAll(); showToast('Task saved ✓','success');
+  closeModal('taskModal');
+  renderAdminTaskList();
+  renderAll();
+  showToast('Task saved ✓','success');
 }
 
 async function deleteTask(taskId) {
