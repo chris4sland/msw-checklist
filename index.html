@@ -1120,12 +1120,22 @@ function updateProgress() {
 // ==================== SUPPLIES ====================
 let suppliesLoaded = false;
 let suppliesLoading = false;
+let suppliesSaving = false;       // true while a save is in flight
+let suppliesLastFetch = 0;        // timestamp of last successful fetch
+const SUPPLIES_FETCH_COOLDOWN = 10000; // don't re-fetch within 10 seconds
 
 async function loadSupplies(showIndicator=true) {
+  // Never overwrite state while a save is in progress
+  if (suppliesSaving) return;
   if (suppliesLoading) return;
+
+  // If already loaded recently and not forced, skip the fetch
+  const now = Date.now();
+  if (suppliesLoaded && !showIndicator && (now - suppliesLastFetch) < SUPPLIES_FETCH_COOLDOWN) return;
+
   suppliesLoading = true;
 
-  if (showIndicator) {
+  if (showIndicator && !suppliesLoaded) {
     const container = document.getElementById('supplyList');
     if (container) container.innerHTML = '<div class="empty-state"><span class="icon">⏳</span>Loading supplies…</div>';
   }
@@ -1134,24 +1144,27 @@ async function loadSupplies(showIndicator=true) {
   suppliesLoading = false;
 
   if (!result) return;
+  // Double-check a save didn't start while we were fetching
+  if (suppliesSaving) return;
 
-  // First load: check if KV is empty and seed if so
+  // First load: seed if KV is empty
   if (!result.supplies || result.supplies.length === 0) {
     if (!suppliesLoaded) {
-      // Seed supplies to KV for the first time
       const seedResult = await api('PUT', '/supplies', {supplies: DEFAULT_SUPPLIES});
       if (seedResult) {
         state.supplies = DEFAULT_SUPPLIES;
         suppliesLoaded = true;
+        suppliesLastFetch = Date.now();
         renderSupplies();
         updateProgress();
-        return;
       }
     }
+    return;
   }
 
-  state.supplies = result.supplies || [];
+  state.supplies = result.supplies;
   suppliesLoaded = true;
+  suppliesLastFetch = Date.now();
   renderSupplies();
   updateProgress();
 }
@@ -1298,7 +1311,7 @@ function renderSupplies() {
         <div class="supply-actions">
           <div class="stock-adjust">
             <button onclick="adjustStock('${s.id}',-1)">−</button>
-            <input type="number" value="${stock}" min="0" onchange="setStock('${s.id}',this.value)" id="stockInput_${s.id}">
+            <input type="number" value="${stock}" min="0" onblur="setStock('${s.id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()" id="stockInput_${s.id}">
             <button onclick="adjustStock('${s.id}',1)">+</button>
           </div>
           <button class="btn-count" onclick="markCounted('${s.id}')">✓ Count</button>
@@ -1358,16 +1371,24 @@ async function updateSupplyStock(supplyId, newStock) {
   s.currentStock = newStock;
   s.lastUpdatedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
   s.lastUpdated = new Date().toISOString();
-  await api('PUT','/supplies',{supplies:state.supplies});
-  renderSupplies();
-  updateProgress();
+  suppliesSaving = true;
+  const res = await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  if (res) {
+    suppliesLastFetch = Date.now(); // treat successful save as a fresh fetch
+    renderSupplies();
+    updateProgress();
+  }
 }
 
 async function updateCriticalLevel(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.criticalLevel = parseInt(val)||0;
+  suppliesSaving = true;
   await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  suppliesLastFetch = Date.now();
   renderSupplies();
 }
 
@@ -1375,7 +1396,10 @@ async function updateLowLevel(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.lowLevel = parseInt(val)||0;
+  suppliesSaving = true;
   await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  suppliesLastFetch = Date.now();
   renderSupplies();
 }
 
@@ -1383,7 +1407,10 @@ async function updateRecountDays(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.recountDays = parseInt(val)||0;
+  suppliesSaving = true;
   await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  suppliesLastFetch = Date.now();
   renderSupplies();
   showToast('Recount interval updated ✓','success');
 }
@@ -1437,10 +1464,15 @@ async function markCounted(supplyId) {
   if (!s) return;
   s.lastCounted = new Date().toISOString();
   s.lastCountedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
-  await api('PUT','/supplies',{supplies:state.supplies});
-  renderSupplies();
-  updateProgress();
-  showToast(`✓ Count recorded for ${s.name}`,'success');
+  suppliesSaving = true;
+  const res = await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  if (res) {
+    suppliesLastFetch = Date.now();
+    renderSupplies();
+    updateProgress();
+    showToast('✓ Count recorded for '+s.name,'success');
+  }
 }
 
 // Supply photo preview
@@ -1561,8 +1593,11 @@ async function saveSupply() {
     state.supplies.push({ id:'sup_'+Date.now(), ...supplyData, lastUpdatedBy:'', lastUpdated:'', lastCounted:'', lastCountedBy:'', createdAt: new Date().toISOString() });
   }
 
+  suppliesSaving = true;
   const res = await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
   if (!res) return;
+  suppliesLastFetch = Date.now();
   closeModal('supplyModal');
   renderSupplies();
   showToast('Supply saved ✓','success');
@@ -1571,7 +1606,10 @@ async function saveSupply() {
 async function deleteSupply(supplyId) {
   if (!confirm('Delete this supply item?')) return;
   state.supplies = state.supplies.filter(s=>s.id!==supplyId);
+  suppliesSaving = true;
   await api('PUT','/supplies',{supplies:state.supplies});
+  suppliesSaving = false;
+  suppliesLastFetch = Date.now();
   renderSupplies();
   updateProgress();
   showToast('Supply deleted','default');
