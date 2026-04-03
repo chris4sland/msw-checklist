@@ -256,6 +256,13 @@
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   select option{background:#0f1e35;color:#f0f4ff;}
+  .item-data-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:10px;}
+  .item-data-row:last-child{border-bottom:none;}
+  .item-data-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'Oswald',sans-serif;flex-shrink:0;}
+  .item-data-value{font-size:14px;color:var(--white);text-align:right;}
+  .btn-item-data{background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--accent);padding:4px 10px;border-radius:3px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;white-space:nowrap;}
+  .btn-item-data:hover{background:rgba(74,158,255,.25);}
+  .stock-adjust input[type=number]::-webkit-inner-spin-button,.stock-adjust input[type=number]::-webkit-outer-spin-button{opacity:1;cursor:pointer;height:28px;}
   .dow-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
   .dow-btn{padding:5px 10px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;user-select:none;}
   .dow-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.12);}
@@ -568,7 +575,7 @@
       </div>
       <div class="form-group">
         <label>Recount Interval (days)</label>
-        <input type="number" id="supplyRecountDays" min="1" placeholder="e.g. 10" title="How many days between required counts">
+        <input type="number" id="supplyRecountDays" min="1" placeholder="e.g. 10">
       </div>
     </div>
 
@@ -620,6 +627,18 @@
     <div class="modal-actions">
       <button class="btn btn-secondary btn-sm" onclick="closeModal('photoModal')">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="savePhotoOnly()">Save Photo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM DATA MODAL (read-only for all users) -->
+<div class="modal-overlay" id="itemDataModal">
+  <div class="modal" style="max-width:420px;">
+    <h2 id="itemDataModalTitle">Item Data</h2>
+    <div id="itemDataContent"></div>
+    <div class="modal-actions" style="justify-content:space-between;align-items:center;">
+      <div id="itemDataEditBtn"></div>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('itemDataModal')">Close</button>
     </div>
   </div>
 </div>
@@ -1318,7 +1337,7 @@ function renderSupplies() {
           ${stockUpdateLine}
         </div>
         <div class="supply-actions">
-          <div style="text-align:center;margin-bottom:4px;">
+          <div style="text-align:center;margin-bottom:6px;">
             <div class="stock-num ${stockClass}" style="font-size:26px;line-height:1;">${stock}</div>
             <div class="stock-label">in stock</div>
           </div>
@@ -1326,7 +1345,10 @@ function renderSupplies() {
             <input type="number" value="${stock}" min="0" id="stockInput_${s.id}" placeholder="qty">
             <button class="btn-save-stock" onclick="saveStockInput('${s.id}')">Save</button>
           </div>
-          <button class="btn-count" onclick="markCounted('${s.id}')" style="margin-top:4px;width:100%;text-align:center;">✓ Counted</button>
+          <div style="display:flex;gap:5px;margin-top:5px;">
+            <button class="btn-count" onclick="markCounted('${s.id}')" style="flex:1;text-align:center;">✓ Counted</button>
+            <button class="btn-item-data" onclick="openItemDataModal('${s.id}')">ℹ Item Data</button>
+          </div>
         </div>
       </div>
       <div class="supply-detail-panel" id="sdetail_${s.id}">
@@ -1337,11 +1359,11 @@ function renderSupplies() {
             <input type="number" value="${s.criticalLevel||''}" min="0" placeholder="e.g. 10" onchange="updateCriticalLevel('${s.id}',this.value)">
           </div>
           <div class="form-group" style="margin-bottom:0">
-            <label>Low Level</label>
+            <label>Low Stock Warning Level</label>
             <input type="number" value="${s.lowLevel||''}" min="0" placeholder="e.g. 20" onchange="updateLowLevel('${s.id}',this.value)">
           </div>
           <div class="form-group" style="margin-bottom:0">
-            <label>Recount Every (days)</label>
+            <label>Recount Interval (days)</label>
             <input type="number" value="${s.recountDays||''}" min="1" placeholder="e.g. 10" onchange="updateRecountDays('${s.id}',this.value)">
           </div>`:`
           <div style="font-size:13px;color:var(--muted)">Critical/Low/Recount levels editable by Supply Rep or Admin only.</div>
@@ -1507,45 +1529,53 @@ function viewSupplyPhoto(supplyId) {
 // Supply modal
 function openSupplyModal(supplyId) {
   const isPrivileged = currentUser && (currentUser.role==='admin' || currentUser.role==='supply_rep');
-  document.getElementById('editSupplyId').value = supplyId||'';
-  // Regular staff editing existing item: show photo-only mode
-  if (supplyId && !isPrivileged) {
-    document.getElementById('supplyModalTitle').textContent = 'Update Item Photo';
-    ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.value=''; el.closest('.form-group,.admin-form-row')&&(el.disabled=true); }
-    });
-    document.getElementById('supplyLocation').disabled=true;
-    document.getElementById('supplyPhotoPreview').classList.remove('show');
-    document.getElementById('supplyPhoto').value='';
-    const s=(state.supplies||[]).find(x=>x.id===supplyId);
-    if (s&&s.photo){const img=document.getElementById('supplyPhotoPreview');img.src=s.photo;img.classList.add('show');}
-    document.getElementById('supplyModal').classList.add('open');
-    return;
-  }
-  // Re-enable fields for privileged users
-  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.disabled=false;
+
+  // Always re-enable all fields first
+  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
   });
-  document.getElementById('supplyLocation').disabled=false;
-  document.getElementById('supplyModalTitle').textContent = supplyId?'Edit Supply Item':'Add Supply Item';
-  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('supplyLocation').disabled = false;
+
+  // Clear form
+  document.getElementById('editSupplyId').value = supplyId||'';
+  document.getElementById('supplyModalTitle').textContent = supplyId ? 'Edit Supply Item' : 'Add Supply Item';
+  ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   document.getElementById('supplyLocation').value = '';
   document.getElementById('supplyPhotoPreview').classList.remove('show');
   document.getElementById('supplyPhoto').value = '';
+
   if (supplyId) {
-    const s = (state.supplies||[]).find(x=>x.id===supplyId);
+    const s = (state.supplies||[]).find(x => x.id === supplyId);
     if (s) {
-      document.getElementById('supplyBarcode').value = s.barcode||'';
-      document.getElementById('supplyName').value = s.name||'';
-      document.getElementById('supplyStock').value = s.currentStock??'';
-      document.getElementById('supplyCritical').value = s.criticalLevel||'';
-      document.getElementById('supplyLow').value = s.lowLevel||'';
+      document.getElementById('supplyBarcode').value   = s.barcode||'';
+      document.getElementById('supplyName').value      = s.name||'';
+      document.getElementById('supplyStock').value     = s.currentStock??'';
+      document.getElementById('supplyCritical').value  = s.criticalLevel||'';
+      document.getElementById('supplyLow').value       = s.lowLevel||'';
       document.getElementById('supplyRecountDays').value = s.recountDays||'';
-      document.getElementById('supplyLocation').value = s.location||'';
-      if (s.photo) { const img=document.getElementById('supplyPhotoPreview'); img.src=s.photo; img.classList.add('show'); }
+      document.getElementById('supplyLocation').value  = s.location||'';
+      if (s.photo) {
+        const img = document.getElementById('supplyPhotoPreview');
+        img.src = s.photo;
+        img.classList.add('show');
+      }
+    }
+
+    // If regular staff, lock all fields except photo
+    if (!isPrivileged) {
+      document.getElementById('supplyModalTitle').textContent = 'Update Item Photo';
+      ['supplyBarcode','supplyName','supplyStock','supplyCritical','supplyLow','supplyRecountDays'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = true;
+      });
+      document.getElementById('supplyLocation').disabled = true;
     }
   }
+
   document.getElementById('supplyModal').classList.add('open');
 }
 
@@ -1965,6 +1995,46 @@ async function copyReport() {
 
 // ==================== MODAL / UTILS ====================
 function toggleDow(btn) { btn.classList.toggle('active'); }
+
+function openItemDataModal(supplyId) {
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  const isPrivileged = currentUser && (currentUser.role==='admin' || currentUser.role==='supply_rep');
+
+  document.getElementById('itemDataModalTitle').textContent = s.name;
+
+  const lastCountedLine = s.lastCounted && s.lastCountedBy
+    ? new Date(s.lastCounted).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ' by ' + s.lastCountedBy
+    : 'Never';
+  const lastUpdatedLine = s.lastUpdatedBy && s.lastUpdated
+    ? new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ' by ' + s.lastUpdatedBy
+    : '—';
+
+  const rows = [
+    ['Item ID / Barcode',       s.barcode||'—'],
+    ['Common Name',             s.name||'—'],
+    ['Storage Location',        s.location||'—'],
+    ['Current Stock',           s.currentStock ?? '—'],
+    ['Low Stock Warning Level', s.lowLevel||'—'],
+    ['Critical Level',          s.criticalLevel||'—'],
+    ['Recount Interval (days)', s.recountDays||'—'],
+    ['Last Counted',            lastCountedLine],
+    ['Stock Last Updated',      lastUpdatedLine],
+  ];
+
+  document.getElementById('itemDataContent').innerHTML =
+    rows.map(([label, val]) =>
+      '<div class="item-data-row"><span class="item-data-label">'+esc(label)+'</span><span class="item-data-value">'+esc(String(val))+'</span></div>'
+    ).join('') +
+    (s.photo ? '<div style="margin-top:12px;text-align:center;"><img src="'+s.photo+'" style="max-width:100%;max-height:160px;border-radius:4px;border:1px solid var(--border);" alt="'+esc(s.name)+'"></div>' : '');
+
+  // Show Edit button only for privileged users
+  document.getElementById('itemDataEditBtn').innerHTML = isPrivileged
+    ? '<button class="btn btn-primary btn-sm" onclick="closeModal(&quot;itemDataModal&quot;);openSupplyModal(&quot;'+supplyId+'&quot;)">&#9998; Edit</button>'
+    : '';
+
+  document.getElementById('itemDataModal').classList.add('open');
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(el=>{
   el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
