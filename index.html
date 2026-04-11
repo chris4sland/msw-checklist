@@ -721,12 +721,19 @@ async function patchSupply(supplyId, updates) {
   try {
     const res = await fetch(WORKER_URL + '/supplies/' + supplyId, {
       method: 'PATCH',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+WORKER_SECRET }
-    , body: JSON.stringify(updates) });
-    const data = await res.json();
-    if (!res.ok) { console.error('PATCH supply failed:', data); return false; }
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + WORKER_SECRET },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(()=>({}));
+      console.error('PATCH supply failed:', res.status, data);
+      return false;
+    }
     return true;
-  } catch(e) { console.error('PATCH supply error:', e); return false; }
+  } catch(e) {
+    console.error('PATCH supply error:', e);
+    return false;
+  }
 }
 function setSyncError() {
   const d = document.getElementById('syncDot'), m = document.getElementById('syncMsg');
