@@ -959,7 +959,7 @@ function showTab(name) {
     if ((b.getAttribute('onclick')||'').includes("'"+name+"'")) b.classList.add('active');
   });
   if (name==='admin') renderAdmin();
-  if (name==='supplies') loadSupplies(true);
+  if (name==='supplies') loadSupplies(!suppliesLoaded);
   updateProgress();
 }
 
@@ -1176,16 +1176,19 @@ let suppliesLoaded = false;
 let suppliesLoading = false;
 let suppliesSaving = false;       // true while a save is in flight
 let suppliesLastFetch = 0;        // timestamp of last successful fetch
-const SUPPLIES_FETCH_COOLDOWN = 10000; // don't re-fetch within 10 seconds
+const SUPPLIES_FETCH_COOLDOWN = 30000; // don't re-fetch within 30 seconds after save
 
 async function loadSupplies(showIndicator=true) {
   // Never overwrite state while a save is in progress
   if (suppliesSaving) return;
   if (suppliesLoading) return;
 
-  // If already loaded recently and not forced, skip the fetch
+  // Skip refetch if within cooldown window (protects against overwriting recent saves)
   const now = Date.now();
-  if (suppliesLoaded && !showIndicator && (now - suppliesLastFetch) < SUPPLIES_FETCH_COOLDOWN) return;
+  if (suppliesLoaded && (now - suppliesLastFetch) < SUPPLIES_FETCH_COOLDOWN) {
+    renderSupplies(); // re-render from current state without fetching
+    return;
+  }
 
   suppliesLoading = true;
 
