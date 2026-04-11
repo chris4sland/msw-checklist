@@ -715,6 +715,19 @@ function setSyncing(v) {
   d.className = 'sync-dot'+(v?' syncing':'');
   m.textContent = v ? 'SYNCING…' : 'LIVE — synced to all devices';
 }
+
+// Patch a single supply item — sends only changed fields, much faster than PUT /supplies
+async function patchSupply(supplyId, updates) {
+  try {
+    const res = await fetch(WORKER_URL + '/supplies/' + supplyId, {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+WORKER_SECRET }
+    , body: JSON.stringify(updates) });
+    const data = await res.json();
+    if (!res.ok) { console.error('PATCH supply failed:', data); return false; }
+    return true;
+  } catch(e) { console.error('PATCH supply error:', e); return false; }
+}
 function setSyncError() {
   const d = document.getElementById('syncDot'), m = document.getElementById('syncMsg');
   if (!d) return;
@@ -1395,10 +1408,51 @@ async function saveStockInput(supplyId) {
   const input = document.getElementById('stockInput_'+supplyId);
   if (!input) return;
   const newVal = Math.max(0, parseInt(input.value)||0);
-  // Flash the button to confirm
   const btn = input.nextElementSibling;
-  if (btn) { btn.textContent='✓ Saved'; btn.style.background='rgba(46,204,113,.3)'; btn.style.borderColor='rgba(46,204,113,.6)'; btn.style.color='var(--green)'; setTimeout(()=>{ btn.textContent='Save'; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; }, 1800); }
-  await updateSupplyStock(supplyId, newVal);
+
+  // ── Option B: Optimistic UI — update instantly, don't wait for network ──
+  const s = (state.supplies||[]).find(x=>x.id===supplyId);
+  if (!s) return;
+  const oldStock = s.currentStock;
+  s.currentStock = newVal;
+  s.lastUpdatedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  s.lastUpdated = new Date().toISOString();
+  suppliesLastFetch = Date.now();
+
+  // Flash button green immediately
+  if (btn) {
+    btn.textContent = '✓ Saved';
+    btn.style.background = 'rgba(46,204,113,.3)';
+    btn.style.borderColor = 'rgba(46,204,113,.5)';
+    btn.style.color = 'var(--green)';
+  }
+  renderSupplies();
+  updateProgress();
+
+  // ── Option A: PATCH single item in background — small fast payload ──
+  suppliesSaving = true;
+  const ok = await patchSupply(supplyId, {
+    currentStock: newVal,
+    lastUpdatedBy: s.lastUpdatedBy,
+    lastUpdated: s.lastUpdated
+  });
+  suppliesSaving = false;
+
+  if (ok) {
+    // Success — reset button after delay
+    setTimeout(() => {
+      if (btn) { btn.textContent='Save'; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; }
+    }, 1800);
+  } else {
+    // Failed — revert and show error
+    s.currentStock = oldStock;
+    renderSupplies();
+    if (btn) { btn.textContent='⚠ Failed'; btn.style.background='rgba(231,76,60,.2)'; btn.style.borderColor='rgba(231,76,60,.5)'; btn.style.color='var(--red)'; }
+    setTimeout(() => {
+      if (btn) { btn.textContent='Save'; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; }
+    }, 2500);
+    showToast('Save failed — check connection','error');
+  }
 }
 
 async function updateSupplyStock(supplyId, newStock) {
@@ -1421,33 +1475,33 @@ async function updateCriticalLevel(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.criticalLevel = parseInt(val)||0;
-  suppliesSaving = true;
-  await api('PUT','/supplies',{supplies:state.supplies});
-  suppliesSaving = false;
   suppliesLastFetch = Date.now();
   renderSupplies();
+  suppliesSaving = true;
+  await patchSupply(supplyId, { criticalLevel: s.criticalLevel });
+  suppliesSaving = false;
 }
 
 async function updateLowLevel(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.lowLevel = parseInt(val)||0;
-  suppliesSaving = true;
-  await api('PUT','/supplies',{supplies:state.supplies});
-  suppliesSaving = false;
   suppliesLastFetch = Date.now();
   renderSupplies();
+  suppliesSaving = true;
+  await patchSupply(supplyId, { lowLevel: s.lowLevel });
+  suppliesSaving = false;
 }
 
 async function updateRecountDays(supplyId, val) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
   s.recountDays = parseInt(val)||0;
-  suppliesSaving = true;
-  await api('PUT','/supplies',{supplies:state.supplies});
-  suppliesSaving = false;
   suppliesLastFetch = Date.now();
   renderSupplies();
+  suppliesSaving = true;
+  await patchSupply(supplyId, { recountDays: s.recountDays });
+  suppliesSaving = false;
   showToast('Recount interval updated ✓','success');
 }
 
@@ -1498,17 +1552,19 @@ async function savePhotoOnly() {
 async function markCounted(supplyId) {
   const s = (state.supplies||[]).find(x=>x.id===supplyId);
   if (!s) return;
-  s.lastCounted = new Date().toISOString();
-  s.lastCountedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  const now = new Date().toISOString();
+  const userName = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  // Optimistic update
+  s.lastCounted = now;
+  s.lastCountedBy = userName;
+  suppliesLastFetch = Date.now();
+  renderSupplies();
+  updateProgress();
+  showToast('✓ Count recorded for '+s.name,'success');
+  // PATCH in background
   suppliesSaving = true;
-  const res = await api('PUT','/supplies',{supplies:state.supplies});
+  await patchSupply(supplyId, { lastCounted: now, lastCountedBy: userName });
   suppliesSaving = false;
-  if (res) {
-    suppliesLastFetch = Date.now();
-    renderSupplies();
-    updateProgress();
-    showToast('✓ Count recorded for '+s.name,'success');
-  }
 }
 
 // Supply photo preview
