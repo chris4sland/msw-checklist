@@ -143,53 +143,63 @@
   .note-actions{display:flex;gap:8px;margin-top:7px;}
 
   /* ===== SUPPLIES TAB ===== */
-  .supply-alert-banner{background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.35);border-radius:4px;padding:14px 16px;margin-bottom:18px;}
-  .supply-alert-banner h4{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-  .supply-alert-item{font-size:13px;color:#ff8a80;padding:3px 0;display:flex;align-items:center;gap:8px;}
+  .supply-alert-banner{background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.4);border-radius:4px;padding:12px 14px;margin-bottom:12px;}
+  .supply-alert-banner h4{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+  .supply-alert-item{font-size:13px;color:#ff8a80;padding:2px 0;display:flex;align-items:center;gap:8px;}
   .supply-alert-item::before{content:'▸';color:var(--red);}
-  .supply-search-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;}
+  .supply-search-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
   .supply-search-wrap{flex:1;position:relative;}
-  .supply-search-wrap input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:14px;padding:10px 14px 10px 38px;outline:none;transition:border-color .2s;}
-  .supply-search-wrap input:focus{border-color:var(--gold);}
-  .supply-search-wrap .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
-  .supply-filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
-  .supply-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden;transition:all .2s;}
-  .supply-card:hover{border-color:rgba(201,168,76,.3);}
-  .supply-card.critical{border-color:rgba(231,76,60,.5);background:rgba(231,76,60,.04);}
-  .supply-card.low{border-color:rgba(243,156,18,.4);}
-  .supply-card-main{display:flex;align-items:center;gap:12px;padding:12px 14px;}
-  .supply-photo{width:48px;height:48px;border-radius:3px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px;cursor:pointer;}
-  .supply-photo img{width:100%;height:100%;object-fit:cover;border-radius:3px;}
+  .supply-search-wrap input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:4px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:15px;padding:11px 14px 11px 40px;outline:none;transition:border-color .2s;}
+  .supply-search-wrap input:focus{border-color:var(--gold);background:rgba(201,168,76,.04);}
+  .supply-search-wrap .search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none;}
+  .supply-filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+  /* Supply card — clean row layout */
+  .supply-card{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
+  .supply-card.critical{border-left:4px solid var(--red);background:rgba(231,76,60,.04);}
+  .supply-card.low{border-left:4px solid var(--amber);}
+  .supply-card.ok{border-left:4px solid var(--green);}
+  .supply-card.needs-count{border-left:4px solid #9b59b6;}
+  .supply-card-main{display:flex;align-items:center;gap:10px;padding:10px 12px;}
+  /* Photo */
+  .supply-photo{width:50px;height:50px;border-radius:5px;border:1px solid var(--border);flex-shrink:0;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;overflow:hidden;}
+  .supply-photo img{width:100%;height:100%;object-fit:cover;}
+  /* Info block */
   .supply-info{flex:1;min-width:0;}
-  .supply-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:2px;}
+  .supply-name{font-size:15px;font-weight:600;color:var(--white);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .supply-card.critical .supply-name{color:#ff8a80;}
-  .supply-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;}
-  .supply-id{font-size:11px;color:var(--muted);font-family:'Oswald',sans-serif;letter-spacing:1px;}
-  .supply-location-badge{font-size:11px;padding:2px 7px;border-radius:2px;background:rgba(155,89,182,.15);color:#c39bd3;border:1px solid rgba(155,89,182,.3);font-family:'Oswald',sans-serif;letter-spacing:1px;}
-  .supply-stock-section{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .stock-display{text-align:center;}
-  .stock-num{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;line-height:1;}
-  .stock-num.critical{color:var(--red);}
-  .stock-num.low{color:var(--amber);}
-  .stock-num.ok{color:var(--green);}
-  .stock-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-  .stock-critical-line{font-size:11px;color:var(--muted);margin-top:2px;}
-  .stock-critical-line span{color:var(--amber);}
-  .supply-actions{display:flex;gap:6px;flex-direction:column;align-items:center;}
-  .stock-adjust{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:3px;padding:4px 8px;}
-  .stock-adjust{display:flex;align-items:center;gap:6px;}
-  .stock-adjust input{width:64px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:'Oswald',sans-serif;font-size:18px;text-align:center;outline:none;padding:4px 2px;transition:border-color .2s;}
-  .stock-adjust input:focus{border-color:var(--gold);background:rgba(201,168,76,.06);}
-  .btn-save-stock{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.5);border-radius:3px;color:var(--gold);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
-  .btn-save-stock:hover{background:rgba(201,168,76,.4);color:var(--white);}
-  .stock-last-update{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.3;}
-  .supply-expand-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 0;transition:color .2s;white-space:nowrap;}
-  .supply-expand-btn:hover{color:var(--gold);}
-  .supply-detail-panel{border-top:1px solid var(--border);padding:12px 14px;display:none;background:rgba(0,0,0,.15);}
+  .supply-card.low .supply-name{color:#fbc97a;}
+  .supply-sub{font-size:12px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+  .supply-location-badge{font-size:11px;padding:2px 6px;border-radius:3px;background:rgba(155,89,182,.18);color:#c39bd3;border:1px solid rgba(155,89,182,.35);font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  .supply-status-badge{font-size:11px;padding:2px 7px;border-radius:3px;font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  .supply-status-badge.critical{background:rgba(231,76,60,.18);color:var(--red);border:1px solid rgba(231,76,60,.4);}
+  .supply-status-badge.low{background:rgba(243,156,18,.15);color:var(--amber);border:1px solid rgba(243,156,18,.4);}
+  .supply-status-badge.ok{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3);}
+  .supply-count-badge{font-size:11px;padding:2px 7px;border-radius:3px;background:rgba(155,89,182,.15);color:#c39bd3;border:1px solid rgba(155,89,182,.35);font-family:'Oswald',sans-serif;letter-spacing:1px;}
+  /* Right action block */
+  .supply-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:110px;}
+  .stock-big{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;line-height:1;text-align:right;}
+  .stock-big.critical{color:var(--red);}
+  .stock-big.low{color:var(--amber);}
+  .stock-big.ok{color:var(--green);}
+  .stock-unit{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;text-align:right;}
+  .stock-entry{display:flex;gap:6px;align-items:center;width:100%;}
+  .stock-entry input{flex:1;min-width:0;width:54px;background:rgba(255,255,255,.07);border:1.5px solid rgba(201,168,76,.4);border-radius:4px;color:var(--white);font-family:'Oswald',sans-serif;font-size:16px;text-align:center;padding:6px 4px;outline:none;transition:border-color .2s,background .2s;}
+  .stock-entry input:focus{border-color:var(--gold);background:rgba(201,168,76,.08);}
+  .stock-entry input[type=number]::-webkit-inner-spin-button,.stock-entry input[type=number]::-webkit-outer-spin-button{opacity:1;height:24px;}
+  .btn-save-stock{background:var(--gold);border:none;border-radius:4px;color:var(--navy);font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .btn-save-stock:hover{background:var(--gold-light);}
+  .btn-save-stock.saved{background:var(--green);color:#fff;}
+  .btn-details-supply{background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.35);border-radius:4px;color:var(--accent);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .2s;width:100%;text-align:center;}
+  .btn-details-supply:hover{background:rgba(74,158,255,.25);}
+  .supply-last-info{font-size:11px;color:var(--muted);line-height:1.4;}
+  /* Detail panel */
+  .supply-detail-panel{border-top:1px solid var(--border);padding:12px 14px;display:none;background:rgba(0,0,0,.2);}
   .supply-detail-panel.open{display:block;}
-  .supply-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-  @media(max-width:480px){.supply-detail-grid{grid-template-columns:1fr;}}
-  .supply-updated{font-size:12px;color:var(--muted);margin-top:8px;}
+  .detail-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .detail-row:last-child{border-bottom:none;}
+  .detail-label{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'Oswald',sans-serif;}
+  .detail-value{font-size:14px;color:var(--white);font-weight:500;text-align:right;}
+  .detail-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
 
   /* ADMIN */
   .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
@@ -395,18 +405,17 @@
       <div class="supply-search-row">
         <div class="supply-search-wrap">
           <span class="search-icon">🔍</span>
-          <input type="text" id="supplySearch" placeholder="Search by name or scan barcode ID…" oninput="renderSupplies()">
+          <input type="text" id="supplySearch" placeholder="Search by name or barcode…" oninput="renderSupplies()">
         </div>
-        <button class="btn-icon" title="Scan Barcode" onclick="openBarcodeScanner()">📷</button>
-        <button class="btn btn-primary btn-sm" onclick="openSupplyModal()">+ Add</button>
+        <button class="btn btn-primary btn-sm" onclick="openSupplyModal()" style="flex-shrink:0;">+ Add</button>
       </div>
 
       <div class="supply-filter-row">
         <button class="filter-btn active" onclick="setSupplyFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setSupplyFilter('critical',this)">🔴 Critical</button>
-        <button class="filter-btn" onclick="setSupplyFilter('low',this)">🟡 Low</button>
-        <button class="filter-btn" onclick="setSupplyFilter('ok',this)">🟢 OK</button>
-        <button class="filter-btn" onclick="setSupplyFilter('needs-count',this)">🟣 Needs Count</button>
+        <button class="filter-btn" onclick="setSupplyFilter('critical',this)" style="border-color:rgba(231,76,60,.5);color:var(--red);">🔴 Critical</button>
+        <button class="filter-btn" onclick="setSupplyFilter('low',this)" style="border-color:rgba(243,156,18,.5);color:var(--amber);">🟡 Low</button>
+        <button class="filter-btn" onclick="setSupplyFilter('ok',this)" style="border-color:rgba(46,204,113,.4);color:var(--green);">🟢 OK</button>
+        <button class="filter-btn" onclick="setSupplyFilter('needs-count',this)" style="border-color:rgba(155,89,182,.4);color:#c39bd3;">🟣 Count Due</button>
       </div>
 
       <div id="supplyList"></div>
@@ -1246,7 +1255,6 @@ function renderSupplies() {
   const search = (document.getElementById('supplySearch')||{}).value||'';
   const q = search.toLowerCase().trim();
 
-  // Filter
   let filtered = supplies.filter(s => {
     const matchSearch = !q || s.name.toLowerCase().includes(q) || (s.barcode||'').toLowerCase().includes(q);
     const status = getSupplyStatus(s);
@@ -1259,12 +1267,9 @@ function renderSupplies() {
     return matchSearch && matchFilter;
   });
 
-  // Sort: needs-count + critical first, then by status, then alphabetical
+  // Sort: critical first, then low, then ok; within each group alphabetical
+  const order = {critical:0,low:1,ok:2};
   filtered.sort((a,b) => {
-    const nc = (x) => needsCount(x) ? 0 : 1;
-    const order = {critical:0,low:1,ok:2};
-    const nca = nc(a), ncb = nc(b);
-    if (nca!==ncb) return nca-ncb;
     const sa = order[getSupplyStatus(a)]||2, sb = order[getSupplyStatus(b)]||2;
     if (sa!==sb) return sa-sb;
     return a.name.localeCompare(b.name);
@@ -1272,130 +1277,110 @@ function renderSupplies() {
 
   // Alert banners
   const criticals = supplies.filter(s=>getSupplyStatus(s)==='critical');
-  const countDue = supplies.filter(s=>needsCount(s));
+  const countDue  = supplies.filter(s=>needsCount(s));
   const banner = document.getElementById('supplyAlertBanner');
   let bannerHtml = '';
-  if (criticals.length>0) {
-    bannerHtml += `<div class="supply-alert-banner" style="margin-bottom:10px">
-      <h4>🚨 ORDER REQUIRED — ${criticals.length} item${criticals.length>1?'s':''} at critical level</h4>
-      ${criticals.map(s=>`<div class="supply-alert-item">${esc(s.name)} — Stock: ${s.currentStock} (Critical: ${s.criticalLevel}) · ${esc(s.location||'Location unknown')}</div>`).join('')}
-    </div>`;
+  if (criticals.length) {
+    bannerHtml += '<div class="supply-alert-banner"><h4>🚨 ORDER REQUIRED — '+criticals.length+' item'+(criticals.length>1?'s':'')+' at critical level</h4>'+
+      criticals.map(s=>'<div class="supply-alert-item">'+esc(s.name)+' — Stock: '+s.currentStock+' / Critical: '+s.criticalLevel+' · '+esc(s.location||'—')+'</div>').join('')+'</div>';
   }
-  if (countDue.length>0) {
-    bannerHtml += `<div class="supply-alert-banner" style="border-color:rgba(155,89,182,.4);background:rgba(155,89,182,.08);margin-bottom:10px">
-      <h4 style="color:#c39bd3">🟣 COUNT REQUIRED — ${countDue.length} item${countDue.length>1?'s':''} due for recount</h4>
-      ${countDue.map(s=>{
-        const cs=getCountDueStatus(s);
-        const days = s.lastCounted ? Math.floor((new Date()-new Date(s.lastCounted))/(1000*60*60*24)) : '?';
-        return `<div class="supply-alert-item" style="color:#c39bd3">${esc(s.name)} — ${cs==='overdue'?`${days} days since last count`:'Due today'} · ${esc(s.location||'')}</div>`;
-      }).join('')}
-    </div>`;
+  if (countDue.length) {
+    bannerHtml += '<div class="supply-alert-banner" style="border-color:rgba(155,89,182,.4);background:rgba(155,89,182,.08);"><h4 style="color:#c39bd3">🟣 COUNT DUE — '+countDue.length+' item'+(countDue.length>1?'s':'')+' need recount</h4>'+
+      countDue.map(s=>'<div class="supply-alert-item" style="color:#c39bd3">'+esc(s.name)+'</div>').join('')+'</div>';
   }
   banner.innerHTML = bannerHtml;
 
   const container = document.getElementById('supplyList');
-  if (!filtered.length) { container.innerHTML = '<div class="empty-state"><span class="icon">📦</span>No supplies match your search.</div>'; return; }
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📦</span>No supplies match your search.</div>';
+    return;
+  }
 
-  const canDelete = currentUser && (currentUser.role==='admin'||currentUser.role==='supply_rep');
-  const canEditCritical = currentUser && (currentUser.role==='admin'||currentUser.role==='supply_rep');
+  const canEdit = currentUser && (currentUser.role==='admin' || currentUser.role==='supply_rep');
+  const canDelete = canEdit;
 
   container.innerHTML = filtered.map(s => {
     const status = getSupplyStatus(s);
     const countStatus = getCountDueStatus(s);
-    const isNeedsCount = needsCount(s);
     const stock = Number(s.currentStock)||0;
-    const stockClass = status==='critical'?'critical':status==='low'?'low':'ok';
+
+    // Status badge text
+    let statusBadgeHtml = '';
+    if (status==='critical') statusBadgeHtml = '<span class="supply-status-badge critical">🔴 CRITICAL — ORDER ASAP</span>';
+    else if (status==='low')  statusBadgeHtml = '<span class="supply-status-badge low">🟡 LOW STOCK</span>';
+    else                      statusBadgeHtml = '<span class="supply-status-badge ok">🟢 OK</span>';
 
     // Count due badge
-    let countBadge = '';
-    if (s.recountDays && s.recountDays > 0) {
+    let countBadgeHtml = '';
+    if (s.recountDays && s.recountDays>0) {
       if (countStatus==='overdue') {
         const days = s.lastCounted ? Math.floor((new Date()-new Date(s.lastCounted))/(1000*60*60*24)) : '?';
-        countBadge = `<span class="count-overdue-badge">⚠ COUNT ${days}d OVERDUE</span>`;
+        countBadgeHtml = '<span class="supply-count-badge">⚠ COUNT '+days+'d OVERDUE</span>';
       } else if (countStatus==='due-today') {
-        countBadge = `<span class="count-due-badge">🟣 COUNT DUE TODAY</span>`;
-      } else {
-        const last = s.lastCounted ? new Date(s.lastCounted) : null;
-        const daysLeft = last ? Math.ceil(s.recountDays - (new Date()-last)/(1000*60*60*24)) : s.recountDays;
-        countBadge = `<span class="count-ok-badge">✓ Next count in ${daysLeft}d</span>`;
+        countBadgeHtml = '<span class="supply-count-badge">🟣 COUNT DUE TODAY</span>';
       }
     }
 
-    // Last count info
-    let lastCountInfo = '';
+    // Last count / last update info
+    let lastInfo = '';
     if (s.lastCounted && s.lastCountedBy) {
       const ct = new Date(s.lastCounted);
-      lastCountInfo = `<div class="last-count-info">🔢 Last counted by ${esc(s.lastCountedBy)} · ${ct.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${ct.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div>`;
-    } else if (s.recountDays) {
-      lastCountInfo = `<div style="font-size:12px;color:var(--red);">⚠ Never counted</div>`;
+      lastInfo = '🔢 '+esc(s.lastCountedBy)+' · '+ct.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+ct.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    } else if (s.lastUpdatedBy && s.lastUpdated) {
+      const ut = new Date(s.lastUpdated);
+      lastInfo = '✏️ '+esc(s.lastUpdatedBy)+' · '+ut.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+ut.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
     }
 
-    // Last stock update
-    const updatedBy = s.lastUpdatedBy ? `Stock updated by ${esc(s.lastUpdatedBy)} · ${s.lastUpdated?new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}` : '';
+    // Detail rows
+    const detailRows = [
+      ['Item ID / Barcode',    s.barcode||'—'],
+      ['Common Name',          s.name||'—'],
+      ['Location',             s.location||'—'],
+      ['Current Stock',        stock],
+      ['Low Stock Warning',    s.lowLevel||'—'],
+      ['Critical Level',       s.criticalLevel||'—'],
+      ['Recount Interval',     s.recountDays ? s.recountDays+' days' : '—'],
+      ['Last Counted',         s.lastCounted&&s.lastCountedBy ? new Date(s.lastCounted).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+' by '+s.lastCountedBy : 'Never'],
+      ['Stock Updated',        s.lastUpdatedBy&&s.lastUpdated ? new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+' by '+s.lastUpdatedBy : '—'],
+    ];
 
-    // Build last-update line for main card face
-    const stockUpdateLine = s.lastUpdatedBy
-      ? `<div class="stock-last-update">Updated by ${esc(s.lastUpdatedBy)} · ${s.lastUpdated ? new Date(s.lastUpdated).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</div>`
-      : '';
+    const sid = s.id;
+    const editBtn   = canEdit  ? '<button class="btn btn-primary btn-sm" onclick="toggleSupplyDetail(\'' + sid + '\');openSupplyModal(\'' + sid + '\')">Edit Details</button>' : '';
+    const photoBtn  = '<button class="btn btn-secondary btn-sm" onclick="openSupplyModal(\'' + sid + '\')">Update Photo</button>';
+    const deleteBtn = canDelete ? '<button class="btn btn-danger btn-sm" onclick="deleteSupply(\'' + sid + '\')">Delete</button>' : '';
+    const photoDiv  = s.photo ? '<div style="margin-top:10px;text-align:center;"><img src="' + s.photo + '" style="max-width:100%;max-height:140px;border-radius:4px;border:1px solid var(--border);" alt="' + esc(s.name) + '"></div>' : '';
+    const detailHtml = detailRows.map(([lbl,val])=>
+      '<div class="detail-row"><span class="detail-label">'+esc(lbl)+'</span><span class="detail-value">'+esc(String(val))+'</span></div>'
+    ).join('') + photoDiv + '<div class="detail-actions">' + editBtn + photoBtn + deleteBtn + '</div>';
 
-    return `<div class="supply-card ${status}${isNeedsCount?' needs-count':''}" id="scard_${s.id}">
-      <div class="supply-card-main">
-        <div class="supply-photo" onclick="viewSupplyPhoto('${s.id}')">
-          ${s.photo?`<img src="${s.photo}" alt="${esc(s.name)}">`:'📦'}
-        </div>
-        <div class="supply-info">
-          <div class="supply-name">${esc(s.name)}</div>
-          <div class="supply-meta">
-            ${s.barcode?`<span class="supply-id">ID: ${esc(s.barcode)}</span>`:''}
-            ${s.location?`<span class="supply-location-badge">${esc(s.location)}</span>`:''}
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">${countBadge}</div>
-          ${lastCountInfo}
-          ${stockUpdateLine}
-        </div>
-        <div class="supply-actions">
-          <div style="text-align:center;margin-bottom:6px;">
-            <div class="stock-num ${stockClass}" style="font-size:26px;line-height:1;">${stock}</div>
-            <div class="stock-label">in stock</div>
-          </div>
-          <div class="stock-adjust">
-            <input type="number" value="${stock}" min="0" id="stockInput_${s.id}" placeholder="qty">
-            <button class="btn-save-stock" onclick="saveStockInput('${s.id}')">Save</button>
-          </div>
-          <div style="display:flex;gap:5px;margin-top:5px;">
-            <button class="btn-count" onclick="markCounted('${s.id}')" style="flex:1;text-align:center;">✓ Counted</button>
-            <button class="btn-item-data" onclick="openItemDataModal('${s.id}')">ℹ Item Data</button>
-          </div>
-        </div>
-      </div>
-      <div class="supply-detail-panel" id="sdetail_${s.id}">
-        <div class="supply-detail-grid">
-          ${canEditCritical?`
-          <div class="form-group" style="margin-bottom:0">
-            <label>Critical Level</label>
-            <input type="number" value="${s.criticalLevel||''}" min="0" placeholder="e.g. 10" onchange="updateCriticalLevel('${s.id}',this.value)">
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label>Low Stock Warning Level</label>
-            <input type="number" value="${s.lowLevel||''}" min="0" placeholder="e.g. 20" onchange="updateLowLevel('${s.id}',this.value)">
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label>Recount Interval (days)</label>
-            <input type="number" value="${s.recountDays||''}" min="1" placeholder="e.g. 10" onchange="updateRecountDays('${s.id}',this.value)">
-          </div>`:`
-          <div style="font-size:13px;color:var(--muted)">Critical/Low/Recount levels editable by Supply Rep or Admin only.</div>
-          `}
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-          ${canEditCritical
-            ? `<button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">✏️ Edit Details</button>`
-            : `<button class="btn btn-secondary btn-sm" onclick="openSupplyModal('${s.id}')">📷 Update Photo</button>`
-          }
-          ${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteSupply('${s.id}')">🗑 Delete</button>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+    const nc = needsCount(s) ? ' needs-count' : '';
+    const photoHtml = s.photo ? '<img src="'+s.photo+'" alt="'+esc(s.name)+'">' : '📦';
+    const cardHtml =
+      '<div class="supply-card '+status+nc+'" id="scard_'+sid+'">' +
+        '<div class="supply-card-main">' +
+          '<div class="supply-photo" onclick="viewSupplyPhoto(\'' + sid + '\')">' + photoHtml + '</div>' +
+          '<div class="supply-info">' +
+            '<div class="supply-name">'+esc(s.name)+'</div>' +
+            '<div class="supply-sub">' +
+              (s.location ? '<span class="supply-location-badge">'+esc(s.location)+'</span>' : '') +
+              statusBadgeHtml + countBadgeHtml +
+            '</div>' +
+            (lastInfo ? '<div class="supply-last-info" style="margin-top:4px;">'+lastInfo+'</div>' : '') +
+          '</div>' +
+          '<div class="supply-right">' +
+            '<div><div class="stock-big '+status+'">'+stock+'</div><div class="stock-unit">in stock</div></div>' +
+            '<div class="stock-entry">' +
+              '<input type="number" value="'+stock+'" min="0" id="stockInput_'+sid+'" placeholder="qty">' +
+              '<button class="btn-save-stock" onclick="saveStockInput(\'' + sid + '\')">Save</button>' +
+            '</div>' +
+            '<button class="btn btn-sm" onclick="markCounted(\'' + sid + '\')" style="width:100%;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.35);color:var(--green);padding:6px 8px;font-size:11px;text-align:center;">✓ Counted</button>' +
+            '<button class="btn-details-supply" onclick="toggleSupplyDetail(\'' + sid + '\')">ℹ Details</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="supply-detail-panel" id="sdetail_'+sid+'">'+detailHtml+'</div>' +
+      '</div>';
+    return cardHtml;
+  }).join('');;
 }
 
 function toggleSupplyDetail(id) {
