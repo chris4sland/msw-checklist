@@ -445,15 +445,32 @@
     <!-- TURNOVER -->
     <div id="tabTurnover" class="tab-panel">
       <div class="turnover-card">
-        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">🔄 Shift Turnover</h3>
-        <p style="font-size:14px;color:var(--muted);margin-bottom:14px;">Generate a report and reset all tasks for the next shift.</p>
-        <div class="warning-box"><span>⚠️</span><span>Executing turnover <strong>clears all completions and notes</strong> across all devices. Generate and save the report first.</span></div>
-        <div id="turnoverPreview" class="turnover-summary" style="display:none"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-          <button class="btn btn-primary btn-sm" onclick="generateTurnover()">📄 Preview Report</button>
-          <button class="btn btn-green btn-sm" id="executeTurnoverBtn" onclick="executeTurnover()" style="display:none">✅ Execute Turnover</button>
-          <button class="btn btn-sm" onclick="downloadReport()" id="downloadReportBtn" style="display:none;background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.3);color:var(--accent)">⬇️ Download Report</button>
-          <button class="btn btn-sm" onclick="copyReport()" id="copyReportBtn" style="display:none;background:rgba(155,89,182,.15);border:1px solid rgba(155,89,182,.4);color:#c39bd3">📋 Copy for Telegram</button>
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">🔄 Shift Turnover</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:12px;">Generate a report, save or share it, then execute turnover to reset tasks for the next shift.</p>
+        <div class="warning-box"><span>⚠️</span><span>Executing turnover <strong>clears all completions and notes</strong> across all devices. Save or share the report first.</span></div>
+
+        <!-- STEP 1: Generate -->
+        <div style="margin-top:14px;">
+          <button class="btn btn-primary" onclick="generateTurnover()" style="width:100%;padding:14px;">📄 Generate Report</button>
+        </div>
+
+        <!-- REPORT PREVIEW — phone-friendly -->
+        <div id="turnoverPreview" style="display:none;margin-top:14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:4px;padding:14px;font-size:13px;line-height:1.9;color:var(--white);max-height:55vh;overflow-y:auto;white-space:pre-wrap;font-family:'Source Sans 3',sans-serif;word-break:break-word;"></div>
+
+        <!-- STEP 2: Save / Share (shown after preview generated) -->
+        <div id="turnoverActionRow" style="display:none;margin-top:12px;display:none;">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;font-family:'Oswald',sans-serif;text-transform:uppercase;">Step 2 — Save or Share Report</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn btn-sm" id="copyReportBtn" onclick="copyReport()" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);color:var(--gold);padding:12px 8px;font-size:12px;">📋 Copy Text</button>
+            <button class="btn btn-sm" id="shareReportBtn" onclick="shareReport()" style="background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.3);color:var(--accent);padding:12px 8px;font-size:12px;">📤 Share</button>
+            <button class="btn btn-sm" id="downloadReportBtn" onclick="downloadReport()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);padding:12px 8px;font-size:12px;">⬇️ Download .txt</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Execute (shown after preview) -->
+        <div id="turnoverExecuteRow" style="display:none;margin-top:12px;">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;font-family:'Oswald',sans-serif;text-transform:uppercase;">Step 3 — Execute Turnover</p>
+          <button class="btn btn-green" id="executeTurnoverBtn" onclick="executeTurnover()" style="width:100%;padding:14px;">✅ Execute Turnover &amp; Reset Tasks</button>
         </div>
       </div>
     </div>
@@ -1938,20 +1955,28 @@ function generateTurnover() {
   turnoverText = r;
   document.getElementById('turnoverPreview').textContent = r;
   document.getElementById('turnoverPreview').style.display = 'block';
-  document.getElementById('executeTurnoverBtn').style.display = 'inline-block';
-  document.getElementById('downloadReportBtn').style.display = 'inline-block';
-  document.getElementById('copyReportBtn').style.display = 'inline-block';
+  document.getElementById('turnoverActionRow').style.display = 'block';
+  document.getElementById('turnoverExecuteRow').style.display = 'block';
 }
 
 async function executeTurnover() {
-  if (!confirm('Execute turnover? This resets ALL tasks and notes across all devices.')) return;
-  const res=await api('POST','/reset'); if(!res) return;
-  state.completions={}; state.notes={};
-  document.getElementById('turnoverPreview').style.display='none';
-  document.getElementById('executeTurnoverBtn').style.display='none';
-  document.getElementById('downloadReportBtn').style.display='none';
-  document.getElementById('copyReportBtn').style.display='none';
-  turnoverText=''; renderAll(); showToast('Turnover complete — tasks reset ✓','success'); showTab('day');
+  // Step 1: confirm report was saved
+  const saved = confirm('Before executing turnover:\n\nHave you saved or shared the report?\n\nPress OK to confirm and reset all tasks, or Cancel to go back and save first.');
+  if (!saved) return;
+  // Step 2: final safety confirm
+  const sure = confirm('Last check — this will clear ALL task completions and notes across every device.\n\nContinue?');
+  if (!sure) return;
+  const res = await api('POST', '/reset');
+  if (!res) return;
+  state.completions = {};
+  state.notes = {};
+  document.getElementById('turnoverPreview').style.display = 'none';
+  document.getElementById('turnoverActionRow').style.display = 'none';
+  document.getElementById('turnoverExecuteRow').style.display = 'none';
+  turnoverText = '';
+  renderAll();
+  showToast('Turnover complete — tasks reset ✓', 'success');
+  showTab('day');
 }
 
 function downloadReport() {
@@ -1967,29 +1992,48 @@ function downloadReport() {
 
 async function copyReport() {
   if (!turnoverText) { showToast('Generate report first','error'); return; }
+  const btn = document.getElementById('copyReportBtn');
   try {
     await navigator.clipboard.writeText(turnoverText);
-    const btn = document.getElementById('copyReportBtn');
-    const orig = btn.textContent;
     btn.textContent = '✅ Copied!';
     btn.style.background = 'rgba(46,204,113,.2)';
     btn.style.borderColor = 'rgba(46,204,113,.5)';
     btn.style.color = 'var(--green)';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.background = '';
-      btn.style.borderColor = '';
-      btn.style.color = '';
-    }, 2500);
+    setTimeout(() => { btn.textContent = '📋 Copy Text'; btn.style.background=''; btn.style.borderColor=''; btn.style.color=''; }, 2500);
   } catch(e) {
-    // Fallback for browsers that block clipboard
     const ta = document.createElement('textarea');
     ta.value = turnoverText;
-    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
     document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
+    ta.focus(); ta.select();
+    document.execCommand('copy');
     document.body.removeChild(ta);
     showToast('Copied to clipboard ✓','success');
+  }
+}
+
+async function shareReport() {
+  if (!turnoverText) { showToast('Generate report first','error'); return; }
+  // Use Web Share API if available (works on iOS/Android for sharing to Telegram etc.)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'MSW Shift Turnover Report',
+        text: turnoverText,
+      });
+    } catch(e) {
+      if (e.name !== 'AbortError') showToast('Share failed — try Copy instead','error');
+    }
+  } else {
+    // Fallback: share as a downloadable file
+    const blob = new Blob([turnoverText], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const now = new Date();
+    a.download = 'MSW_Turnover_'+now.toISOString().slice(0,10)+'.txt';
+    a.href = url; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded — open and share from Files app','success');
   }
 }
 
