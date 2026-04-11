@@ -1252,9 +1252,10 @@ function getSupplyStatus(s) {
 // Returns 'overdue', 'due-today', or 'ok' based on recount interval
 function getCountDueStatus(s) {
   if (!s.recountDays || s.recountDays <= 0) return 'none';
-  const lastCount = s.lastCounted ? new Date(s.lastCounted) : (s.createdAt ? new Date(s.createdAt) : null);
-  if (!lastCount) return 'overdue'; // never counted, treat as overdue
+  // Only use lastCounted — never fall back to createdAt (that's the import date, not a count)
+  if (!s.lastCounted) return 'overdue';
   const now = new Date();
+  const lastCount = new Date(s.lastCounted);
   const daysSince = (now - lastCount) / (1000 * 60 * 60 * 24);
   if (daysSince >= s.recountDays) return 'overdue';
   if (daysSince >= s.recountDays - 1) return 'due-today';
@@ -1554,6 +1555,9 @@ async function markCounted(supplyId) {
   if (!s) return;
   const now = new Date().toISOString();
   const userName = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
+  const prevCounted = s.lastCounted;
+  const prevCountedBy = s.lastCountedBy;
+
   // Optimistic update
   s.lastCounted = now;
   s.lastCountedBy = userName;
@@ -1561,10 +1565,17 @@ async function markCounted(supplyId) {
   renderSupplies();
   updateProgress();
   showToast('✓ Count recorded for '+s.name,'success');
-  // PATCH in background
+
+  // PATCH — revert if it fails
   suppliesSaving = true;
-  await patchSupply(supplyId, { lastCounted: now, lastCountedBy: userName });
+  const ok = await patchSupply(supplyId, { lastCounted: now, lastCountedBy: userName });
   suppliesSaving = false;
+  if (!ok) {
+    s.lastCounted = prevCounted;
+    s.lastCountedBy = prevCountedBy;
+    renderSupplies();
+    showToast('Count save failed — try again','error');
+  }
 }
 
 // Supply photo preview
