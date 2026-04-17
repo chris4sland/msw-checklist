@@ -266,6 +266,50 @@
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   select option{background:#0f1e35;color:#f0f4ff;}
+  /* ===== BULK COUNT MODE ===== */
+  .bulk-modal{max-width:460px;padding:0;overflow:hidden;}
+  .bulk-header{background:linear-gradient(180deg,rgba(155,89,182,.15),transparent);padding:14px 18px 10px;border-bottom:1px solid var(--border);position:relative;}
+  .bulk-header h2{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;text-transform:uppercase;color:#c39bd3;margin:0;}
+  .bulk-progress-line{margin-top:6px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .bulk-progress-bar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+  .bulk-progress-fill{height:100%;background:linear-gradient(90deg,#c39bd3,var(--gold));transition:width .4s;}
+  .bulk-body{padding:18px;min-height:360px;}
+  .bulk-photo-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .bulk-photo{width:64px;height:64px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;}
+  .bulk-photo img{width:100%;height:100%;object-fit:cover;}
+  .bulk-name{font-size:17px;font-weight:600;color:var(--white);line-height:1.25;margin-bottom:3px;}
+  .bulk-sub{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+  .bulk-thresholds{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:5px;padding:8px 12px;margin-bottom:14px;display:flex;justify-content:space-around;}
+  .bulk-thresh-item{text-align:center;}
+  .bulk-thresh-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:'Oswald',sans-serif;}
+  .bulk-thresh-val{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-top:2px;}
+  .bulk-thresh-val.prev{color:var(--accent);}
+  .bulk-thresh-val.low{color:var(--amber);}
+  .bulk-thresh-val.crit{color:var(--red);}
+  .bulk-big-num{text-align:center;font-family:'Oswald',sans-serif;font-size:72px;font-weight:700;color:var(--gold);line-height:1;margin:6px 0 4px;letter-spacing:2px;min-height:80px;}
+  .bulk-big-num.empty{color:var(--muted);opacity:.3;}
+  .bulk-big-label{text-align:center;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-family:'Oswald',sans-serif;margin-bottom:14px;}
+  .bulk-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+  .bulk-key{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;padding:16px 0;cursor:pointer;transition:all .12s;}
+  .bulk-key:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);}
+  .bulk-key:active{transform:scale(.95);background:rgba(201,168,76,.3);}
+  .bulk-key.action{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.3);color:var(--red);font-size:18px;}
+  .bulk-key.action:hover{background:rgba(231,76,60,.25);}
+  .bulk-nav-row{display:flex;gap:8px;margin-top:8px;}
+  .bulk-btn-skip{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:12px;border-radius:5px;cursor:pointer;}
+  .bulk-btn-skip:hover{background:rgba(255,255,255,.1);color:var(--white);}
+  .bulk-btn-save{flex:2;background:var(--gold);border:none;color:var(--navy);font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:5px;cursor:pointer;transition:background .2s;}
+  .bulk-btn-save:hover{background:var(--gold-light);}
+  .bulk-btn-save:disabled{opacity:.5;cursor:not-allowed;}
+  .bulk-btn-save.saved{background:var(--green);color:#fff;}
+  .bulk-done{padding:40px 20px;text-align:center;}
+  .bulk-done h3{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:2px;color:var(--green);margin-bottom:10px;}
+  .bulk-done p{color:var(--muted);font-size:13px;margin-bottom:16px;}
+  .bulk-scope-picker{padding:18px;}
+  .bulk-scope-option{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center;}
+  .bulk-scope-option:hover{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.08);}
+  .bulk-scope-label{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;color:var(--white);}
+  .bulk-scope-count{background:rgba(155,89,182,.2);border:1px solid rgba(155,89,182,.4);color:#c39bd3;border-radius:3px;padding:3px 9px;font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;}
   .item-data-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:10px;}
   .item-data-row:last-child{border-bottom:none;}
   .item-data-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'Oswald',sans-serif;flex-shrink:0;}
@@ -407,6 +451,7 @@
           <span class="search-icon">🔍</span>
           <input type="text" id="supplySearch" placeholder="Search by name or barcode…" oninput="renderSupplies()">
         </div>
+        <button class="btn btn-sm" onclick="openBulkCount()" style="flex-shrink:0;background:rgba(155,89,182,.2);border:1px solid rgba(155,89,182,.5);color:#c39bd3;padding:8px 12px;" title="Bulk count mode">🔢 Count</button>
         <button class="btn btn-primary btn-sm" onclick="openSupplyModal()" style="flex-shrink:0;">+ Add</button>
       </div>
 
@@ -417,6 +462,8 @@
         <button class="filter-btn" onclick="setSupplyFilter('ok',this)" style="border-color:rgba(46,204,113,.4);color:var(--green);">🟢 OK</button>
         <button class="filter-btn" onclick="setSupplyFilter('needs-count',this)" style="border-color:rgba(155,89,182,.4);color:#c39bd3;">🟣 Count Due</button>
       </div>
+
+      <div class="supply-filter-row" id="supplyLocationFilterRow" style="margin-top:-4px;"></div>
 
       <div id="supplyList"></div>
     </div>
@@ -639,36 +686,6 @@
   </div>
 </div>
 
-<!-- PHOTO ONLY MODAL (staff) -->
-<div class="modal-overlay" id="photoModal">
-  <div class="modal" style="max-width:380px;">
-    <h2>📷 Update Item Photo</h2>
-    <input type="hidden" id="photoModalSupplyId">
-    <div id="photoModalName" style="font-size:14px;color:var(--gold);margin-bottom:14px;font-family:'Oswald',sans-serif;letter-spacing:1px;"></div>
-    <div class="form-group">
-      <label>New Photo</label>
-      <input type="file" id="photoModalFile" accept="image/*" capture="environment" onchange="previewPhotoModal()" style="font-size:13px;padding:8px;">
-      <img id="photoModalPreview" class="photo-preview" alt="Preview">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary btn-sm" onclick="closeModal('photoModal')">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="savePhotoOnly()">Save Photo</button>
-    </div>
-  </div>
-</div>
-
-<!-- ITEM DATA MODAL (read-only for all users) -->
-<div class="modal-overlay" id="itemDataModal">
-  <div class="modal" style="max-width:420px;">
-    <h2 id="itemDataModalTitle">Item Data</h2>
-    <div id="itemDataContent"></div>
-    <div class="modal-actions" style="justify-content:space-between;align-items:center;">
-      <div id="itemDataEditBtn"></div>
-      <button class="btn btn-secondary btn-sm" onclick="closeModal('itemDataModal')">Close</button>
-    </div>
-  </div>
-</div>
-
 <!-- BARCODE SCANNER MODAL -->
 <div class="modal-overlay" id="scannerModal">
   <div class="modal" style="max-width:380px;text-align:center;">
@@ -751,6 +768,7 @@ let state = { users:[], tasks:[], completions:{}, notes:{}, settings:{email:''},
 let currentUser = null;
 let activeFilter = 'all';
 let activeSupplyFilter = 'all';
+let activeSupplyLocation = 'all';
 let turnoverText = '';
 let pollInterval = null;
 let clockInterval = null;
@@ -1275,6 +1293,7 @@ function needsCount(s) {
 }
 
 function renderSupplies() {
+  renderLocationFilter();
   const supplies = state.supplies||[];
   const search = (document.getElementById('supplySearch')||{}).value||'';
   const q = search.toLowerCase().trim();
@@ -1288,7 +1307,8 @@ function renderSupplies() {
     else if (activeSupplyFilter==='low') matchFilter = status==='low';
     else if (activeSupplyFilter==='ok') matchFilter = status==='ok';
     else if (activeSupplyFilter==='needs-count') matchFilter = needsCount(s);
-    return matchSearch && matchFilter;
+    const matchLocation = activeSupplyLocation==='all' || s.location===activeSupplyLocation;
+    return matchSearch && matchFilter && matchLocation;
   });
 
   // Sort: critical first, then low, then ok; within each group alphabetical
@@ -1511,50 +1531,6 @@ async function updateRecountDays(supplyId, val) {
   await patchSupply(supplyId, { recountDays: s.recountDays });
   suppliesSaving = false;
   showToast('Recount interval updated ✓','success');
-}
-
-function openPhotoModal(supplyId) {
-  const s = (state.supplies||[]).find(x=>x.id===supplyId);
-  if (!s) return;
-  document.getElementById('photoModalSupplyId').value = supplyId;
-  document.getElementById('photoModalName').textContent = s.name;
-  document.getElementById('photoModalFile').value = '';
-  const prev = document.getElementById('photoModalPreview');
-  if (s.photo) { prev.src=s.photo; prev.classList.add('show'); }
-  else { prev.classList.remove('show'); }
-  document.getElementById('photoModal').classList.add('open');
-}
-
-function previewPhotoModal() {
-  const file = document.getElementById('photoModalFile').files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = document.getElementById('photoModalPreview');
-    img.src = e.target.result;
-    img.classList.add('show');
-  };
-  reader.readAsDataURL(file);
-}
-
-async function savePhotoOnly() {
-  const supplyId = document.getElementById('photoModalSupplyId').value;
-  const file = document.getElementById('photoModalFile').files[0];
-  if (!file) { showToast('Please select a photo','error'); return; }
-  const s = (state.supplies||[]).find(x=>x.id===supplyId);
-  if (!s) return;
-  const photoData = await new Promise(res => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.readAsDataURL(file);
-  });
-  s.photo = photoData;
-  s.lastUpdatedBy = currentUser.firstName+(currentUser.lastName?' '+currentUser.lastName:'');
-  s.lastUpdated = new Date().toISOString();
-  await api('PUT','/supplies',{supplies:state.supplies});
-  closeModal('photoModal');
-  renderSupplies();
-  showToast('Photo updated ✓','success');
 }
 
 async function markCounted(supplyId) {
@@ -2141,6 +2117,258 @@ function openItemDataModal(supplyId) {
 
   document.getElementById('itemDataModal').classList.add('open');
 }
+// ==================== BULK COUNT MODE ====================
+let bulkQueue = [];      // array of supply ids to step through
+let bulkIndex = 0;       // current position
+let bulkTyped = '';      // digits being typed
+let bulkScopeLabel = ''; // shown in header
+
+function openBulkCount() {
+  if (!state.supplies || state.supplies.length === 0) {
+    showToast('No supplies loaded','error');
+    return;
+  }
+  // Build scope options dynamically
+  const allCount = state.supplies.length;
+  const dueCount = state.supplies.filter(s => needsCount(s)).length;
+  const criticalCount = state.supplies.filter(s => getSupplyStatus(s) === 'critical').length;
+
+  // Per-location counts
+  const byLoc = {};
+  state.supplies.forEach(s => {
+    if (!s.location) return;
+    byLoc[s.location] = (byLoc[s.location]||0) + 1;
+  });
+
+  let html = '';
+  if (dueCount > 0) {
+    html += '<div class="bulk-scope-option" onclick="startBulkCount(\'due\')">' +
+            '<span class="bulk-scope-label">🟣 Count Due Only</span>' +
+            '<span class="bulk-scope-count">' + dueCount + ' items</span>' +
+            '</div>';
+  }
+  if (criticalCount > 0) {
+    html += '<div class="bulk-scope-option" onclick="startBulkCount(\'critical\')">' +
+            '<span class="bulk-scope-label">🔴 Critical Only</span>' +
+            '<span class="bulk-scope-count">' + criticalCount + ' items</span>' +
+            '</div>';
+  }
+
+  // Only show per-location options if a filter isn't already set
+  Object.keys(byLoc).sort().forEach(loc => {
+    const short = loc.replace('Supply Room — ','').replace('Supply Room \u2014 ','');
+    html += '<div class="bulk-scope-option" onclick="startBulkCount(\'loc:' + esc(loc).replace(/\'/g,"\\'") + '\')">' +
+            '<span class="bulk-scope-label">📍 ' + esc(short) + '</span>' +
+            '<span class="bulk-scope-count">' + byLoc[loc] + ' items</span>' +
+            '</div>';
+  });
+
+  html += '<div class="bulk-scope-option" onclick="startBulkCount(\'all\')">' +
+          '<span class="bulk-scope-label">📦 All Items</span>' +
+          '<span class="bulk-scope-count">' + allCount + ' items</span>' +
+          '</div>';
+
+  document.getElementById('bulkScopeOptions').innerHTML = html;
+  document.getElementById('bulkScopePicker').style.display = 'block';
+  document.getElementById('bulkCountRunner').style.display = 'none';
+  document.getElementById('bulkCountModal').classList.add('open');
+}
+
+function startBulkCount(scope) {
+  if (scope === 'due') {
+    bulkQueue = state.supplies.filter(s => needsCount(s)).map(s => s.id);
+    bulkScopeLabel = 'Count Due';
+  } else if (scope === 'critical') {
+    bulkQueue = state.supplies.filter(s => getSupplyStatus(s) === 'critical').map(s => s.id);
+    bulkScopeLabel = 'Critical Items';
+  } else if (scope.startsWith('loc:')) {
+    const loc = scope.slice(4);
+    bulkQueue = state.supplies.filter(s => s.location === loc).map(s => s.id);
+    bulkScopeLabel = loc.replace('Supply Room — ','').replace('Supply Room \u2014 ','');
+  } else {
+    bulkQueue = state.supplies.map(s => s.id);
+    bulkScopeLabel = 'All Items';
+  }
+
+  if (bulkQueue.length === 0) {
+    showToast('No items to count','error');
+    return;
+  }
+
+  bulkIndex = 0;
+  bulkTyped = '';
+  document.getElementById('bulkScopePicker').style.display = 'none';
+  document.getElementById('bulkCountRunner').style.display = 'block';
+  renderBulkItem();
+}
+
+function renderBulkItem() {
+  if (bulkIndex >= bulkQueue.length) {
+    renderBulkDone();
+    return;
+  }
+
+  const supplyId = bulkQueue[bulkIndex];
+  const s = state.supplies.find(x => x.id === supplyId);
+  if (!s) { bulkIndex++; renderBulkItem(); return; }
+
+  bulkTyped = '';
+
+  // Header
+  document.getElementById('bulkHeaderTitle').textContent = '🔢 ' + bulkScopeLabel;
+  document.getElementById('bulkProgressText').textContent = 'Item ' + (bulkIndex+1) + ' of ' + bulkQueue.length;
+  document.getElementById('bulkProgressFill').style.width = (((bulkIndex) / bulkQueue.length) * 100) + '%';
+
+  // Body
+  const photoHtml = s.photo ? '<img src="'+s.photo+'" alt="'+esc(s.name)+'">' : '📦';
+  const body = document.getElementById('bulkBody');
+  body.innerHTML =
+    '<div class="bulk-photo-row">' +
+      '<div class="bulk-photo">'+photoHtml+'</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="bulk-name">'+esc(s.name)+'</div>' +
+        '<div class="bulk-sub">' +
+          (s.location ? '<span class="supply-location-badge">'+esc(s.location)+'</span>' : '') +
+          (s.barcode ? '<span style="font-family:Oswald;color:var(--muted);">ID: '+esc(s.barcode)+'</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="bulk-thresholds">' +
+      '<div class="bulk-thresh-item"><div class="bulk-thresh-label">Previous</div><div class="bulk-thresh-val prev">'+(Number(s.currentStock)||0)+'</div></div>' +
+      '<div class="bulk-thresh-item"><div class="bulk-thresh-label">Low</div><div class="bulk-thresh-val low">'+(s.lowLevel||'—')+'</div></div>' +
+      '<div class="bulk-thresh-item"><div class="bulk-thresh-label">Critical</div><div class="bulk-thresh-val crit">'+(s.criticalLevel||'—')+'</div></div>' +
+    '</div>' +
+    '<div id="bulkBigNum" class="bulk-big-num empty">0</div>' +
+    '<div class="bulk-big-label">New Count — Tap to Enter</div>' +
+    '<div class="bulk-keypad">' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'1\')">1</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'2\')">2</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'3\')">3</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'4\')">4</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'5\')">5</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'6\')">6</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'7\')">7</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'8\')">8</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'9\')">9</button>' +
+      '<button class="bulk-key action" onclick="bulkClear()">Clear</button>' +
+      '<button class="bulk-key" onclick="bulkKeyPress(\'0\')">0</button>' +
+      '<button class="bulk-key action" onclick="bulkBackspace()">⌫</button>' +
+    '</div>' +
+    '<div class="bulk-nav-row">' +
+      '<button class="bulk-btn-skip" onclick="bulkSkip()">Skip</button>' +
+      '<button class="bulk-btn-save" id="bulkSaveBtn" onclick="bulkSaveAndNext()">Save &amp; Next →</button>' +
+    '</div>';
+}
+
+function bulkKeyPress(digit) {
+  if (bulkTyped.length >= 6) return; // max 6 digits
+  if (bulkTyped === '0') bulkTyped = '';
+  bulkTyped += digit;
+  updateBulkDisplay();
+}
+
+function bulkBackspace() {
+  bulkTyped = bulkTyped.slice(0, -1);
+  updateBulkDisplay();
+}
+
+function bulkClear() {
+  bulkTyped = '';
+  updateBulkDisplay();
+}
+
+function updateBulkDisplay() {
+  const el = document.getElementById('bulkBigNum');
+  if (!el) return;
+  if (bulkTyped === '') {
+    el.textContent = '0';
+    el.classList.add('empty');
+  } else {
+    el.textContent = bulkTyped;
+    el.classList.remove('empty');
+  }
+}
+
+async function bulkSaveAndNext() {
+  if (bulkTyped === '') {
+    showToast('Enter a count or tap Skip','error');
+    return;
+  }
+
+  const supplyId = bulkQueue[bulkIndex];
+  const s = state.supplies.find(x => x.id === supplyId);
+  if (!s) { bulkIndex++; renderBulkItem(); return; }
+
+  const newVal = parseInt(bulkTyped) || 0;
+  const now = new Date().toISOString();
+  const userName = currentUser.firstName + (currentUser.lastName ? ' ' + currentUser.lastName : '');
+
+  // Optimistic update — mark BOTH stock and count
+  const prevStock = s.currentStock;
+  const prevCounted = s.lastCounted;
+  const prevCountedBy = s.lastCountedBy;
+  const prevUpdated = s.lastUpdated;
+  const prevUpdatedBy = s.lastUpdatedBy;
+
+  s.currentStock = newVal;
+  s.lastUpdatedBy = userName;
+  s.lastUpdated = now;
+  s.lastCounted = now;
+  s.lastCountedBy = userName;
+  suppliesLastFetch = Date.now();
+
+  // Flash save button green
+  const btn = document.getElementById('bulkSaveBtn');
+  if (btn) { btn.classList.add('saved'); btn.textContent = '✓ Saved'; }
+
+  // PATCH in background
+  suppliesSaving = true;
+  const ok = await patchSupply(supplyId, {
+    currentStock: newVal,
+    lastUpdatedBy: userName,
+    lastUpdated: now,
+    lastCounted: now,
+    lastCountedBy: userName
+  });
+  suppliesSaving = false;
+
+  if (!ok) {
+    // Revert
+    s.currentStock = prevStock;
+    s.lastCounted = prevCounted;
+    s.lastCountedBy = prevCountedBy;
+    s.lastUpdated = prevUpdated;
+    s.lastUpdatedBy = prevUpdatedBy;
+    showToast('Save failed — try again','error');
+    if (btn) { btn.classList.remove('saved'); btn.textContent = 'Save & Next →'; }
+    return;
+  }
+
+  // Move to next after brief pause
+  setTimeout(() => {
+    bulkIndex++;
+    renderBulkItem();
+  }, 400);
+}
+
+function bulkSkip() {
+  bulkIndex++;
+  renderBulkItem();
+}
+
+function renderBulkDone() {
+  renderSupplies();
+  updateProgress();
+  document.getElementById('bulkProgressFill').style.width = '100%';
+  document.getElementById('bulkProgressText').textContent = 'Complete';
+  document.getElementById('bulkBody').innerHTML =
+    '<div class="bulk-done">' +
+      '<h3>✓ Bulk Count Complete</h3>' +
+      '<p>Counted '+bulkQueue.length+' item'+(bulkQueue.length!==1?'s':'')+' in '+bulkScopeLabel+'</p>' +
+      '<button class="btn btn-primary" onclick="closeModal(\'bulkCountModal\');" style="padding:12px 30px;">Done</button>' +
+    '</div>';
+}
+
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(el=>{
   el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
