@@ -143,6 +143,40 @@
   .note-actions{display:flex;gap:8px;margin-top:7px;}
 
     .dow-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+
+  /* MODALS */
+  .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:6px;width:100%;max-width:520px;padding:24px;position:relative;max-height:90vh;overflow-y:auto;}
+  .modal h2{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
+
+  /* FILTER BUTTONS */
+  .filter-btn{padding:8px 14px;border-radius:4px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .filter-btn:hover{border-color:rgba(201,168,76,.4);color:var(--white);background:rgba(201,168,76,.08);}
+  .filter-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.12);}
+  .task-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;padding:4px 0;}
+
+  /* ADMIN TAB */
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:4px 0;}
+  @media(max-width:700px){.admin-grid{grid-template-columns:1fr;}}
+  .admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:18px 16px;}
+  .admin-card h3{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+  .admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:480px){.admin-form-row{grid-template-columns:1fr;}}
+  .user-list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .user-list-item:last-child{border-bottom:none;}
+  .user-info{flex:1;min-width:0;}
+  .user-info strong{font-size:14px;display:block;margin-bottom:2px;}
+  .user-info span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .user-actions{display:flex;gap:5px;flex-shrink:0;}
+  .badge{font-size:10px;padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:1px;font-family:'Oswald',sans-serif;}
+  .badge-admin{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+  .badge-supply{background:rgba(155,89,182,.2);color:#c39bd3;border:1px solid rgba(155,89,182,.3);}
+  .badge-user{background:rgba(74,158,255,.12);color:var(--accent);border:1px solid rgba(74,158,255,.25);}
+  .task-list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .task-list-item:last-child{border-bottom:none;}
+  .info-box{display:flex;gap:10px;align-items:flex-start;background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.2);border-radius:4px;padding:10px 14px;font-size:13px;color:var(--accent);margin:10px 0;}
   .dow-btn{padding:5px 10px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .2s;user-select:none;}
   .dow-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.12);}
   .dow-badge{display:inline-block;font-size:10px;padding:1px 5px;border-radius:2px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);font-family:'Oswald',sans-serif;letter-spacing:1px;margin-left:4px;}
@@ -244,22 +278,22 @@
 
     <!-- DAY SHIFT -->
     <div id="tabDay" class="tab-panel active">
-      <div class="supply-filter-row">
+      <div class="task-filter-row">
         <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
-        <button class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
-        <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)" style="border-color:rgba(74,158,255,.4);color:var(--accent);">🔵 Pending</button>
+        <button class="filter-btn" onclick="setFilter('completed',this)" style="border-color:rgba(46,204,113,.4);color:var(--green);">🟢 Completed</button>
+        <button class="filter-btn" onclick="setFilter('overdue',this)" style="border-color:rgba(231,76,60,.4);color:var(--red);">🔴 Overdue</button>
       </div>
       <div id="dayTaskList"></div>
     </div>
 
     <!-- NIGHT SHIFT -->
     <div id="tabNight" class="tab-panel">
-      <div class="supply-filter-row">
+      <div class="task-filter-row">
         <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
-        <button class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
-        <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)" style="border-color:rgba(74,158,255,.4);color:var(--accent);">🔵 Pending</button>
+        <button class="filter-btn" onclick="setFilter('completed',this)" style="border-color:rgba(46,204,113,.4);color:var(--green);">🟢 Completed</button>
+        <button class="filter-btn" onclick="setFilter('overdue',this)" style="border-color:rgba(231,76,60,.4);color:var(--red);">🔴 Overdue</button>
       </div>
       <div id="nightTaskList"></div>
     </div>
