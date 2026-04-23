@@ -449,7 +449,7 @@ function setSyncError() {
 // ==================== STATE ====================
 
 
-let state = { users:[], tasks:[], completions:{}, notes:{}, settings:{email:''}, supplies:[] };
+let state = { users:[], tasks:[], completions:{}, notes:{}, settings:{email:''} };
 let currentUser = null;
 let activeFilter = 'all';
 let turnoverText = '';
@@ -867,6 +867,298 @@ function updateProgress() {
 
 }
 
-// ==================== SUPPLIES ====================
-// true while a save is in flight
-// timestamp of last successful fetch
+// ==================== ADMIN ====================
+function renderAdmin() { renderUserList(); renderAdminTaskList(); loadSettingsUI(); }
+
+function renderUserList() {
+  const c = document.getElementById('userList');
+  if (!c) return;
+  c.innerHTML = (state.users||[]).map(u=>`
+    <div class="user-list-item">
+      <div class="user-info">
+        <strong>${esc(u.firstName)} ${esc(u.lastName||'')}</strong>
+        <span><span class="badge ${u.role==='admin'?'badge-admin':u.role==='supply_rep'?'badge-supply':'badge-user'}">${u.role==='supply_rep'?'Supply Rep':u.role}</span> &nbsp;PIN: ${'•'.repeat(u.pin.length)}</span>
+      </div>
+      <div class="user-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openUserModal('${u.id}')">Edit</button>
+        ${u.id!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Del</button>`:''}
+      </div>
+    </div>`).join('')||'<div class="empty-state" style="padding:16px 0">No users.</div>';
+}
+
+function renderAdminTaskList() {
+  const c = document.getElementById('adminTaskList');
+  if (!c) return;
+  c.innerHTML = (state.tasks||[]).map(t=>{
+    const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dayStr = (!t.days || t.days.length===0 || t.days.length===7) ? 'Every day' : t.days.map(d=>DAYS[d]).join(', ');
+    return `<div class="task-list-item">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500">${esc(t.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(t.category||'')} · ${t.shift}${t.dueTime?' · Due '+t.dueTime:''}</div>
+        <div style="font-size:11px;color:var(--gold)">${dayStr}</div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${t.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Del</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-state" style="padding:16px 0">No tasks.</div>';
+}
+
+// ==================== USER MODAL ====================
+function openUserModal(userId) {
+  document.getElementById('editUserId').value = userId||'';
+  document.getElementById('userModalTitle').textContent = userId?'Edit User':'Add User';
+  document.getElementById('userFirstName').value='';
+  document.getElementById('userLastName').value='';
+  document.getElementById('userRole').value='user';
+  document.getElementById('userPin').value='';
+  if (userId) {
+    const u=(state.users||[]).find(x=>x.id===userId);
+    if (u) { document.getElementById('userFirstName').value=u.firstName; document.getElementById('userLastName').value=u.lastName||''; document.getElementById('userRole').value=u.role; document.getElementById('userPin').value=u.pin; }
+  }
+  document.getElementById('userModal').classList.add('open');
+}
+
+async function saveUser() {
+  const fn=document.getElementById('userFirstName').value.trim();
+  const ln=document.getElementById('userLastName').value.trim();
+  const role=document.getElementById('userRole').value;
+  const pin=document.getElementById('userPin').value.trim();
+  const editId=document.getElementById('editUserId').value;
+  if (!fn) { showToast('First name required','error'); return; }
+  if (!/^\d{4}$/.test(pin)) { showToast('PIN must be 4 digits','error'); return; }
+  if (editId) { const u=state.users.find(x=>x.id===editId); if(u){u.firstName=fn;u.lastName=ln;u.role=role;u.pin=pin;} }
+  else state.users.push({id:'u_'+Date.now(),firstName:fn,lastName:ln,role,pin});
+  const res=await api('PUT','/users',{users:state.users});
+  if (!res) return;
+  closeModal('userModal'); renderUserList(); populateLoginUsers(); showToast('User saved','success');
+}
+
+async function deleteUser(userId) {
+  if (!confirm('Delete this user?')) return;
+  state.users=state.users.filter(u=>u.id!==userId);
+  await api('PUT','/users',{users:state.users});
+  renderUserList(); populateLoginUsers(); showToast('User deleted','default');
+}
+
+// ==================== TASK MODAL ====================
+function toggleDow(btn) { btn.classList.toggle('active'); }
+
+function openTaskModal(taskId) {
+  document.getElementById('editTaskId').value=taskId||'';
+  document.getElementById('taskModalTitle').textContent=taskId?'Edit Task':'Add Task';
+  ['taskName','taskInstructions','taskCategory','taskDueTime'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('taskShift').value='day';
+  document.getElementById('taskWarnMins').value='30';
+  document.getElementById('taskPriority').value='normal';
+  document.querySelectorAll('#taskModal .dow-btn').forEach(b=>b.classList.remove('active'));
+  if (taskId) {
+    const t=(state.tasks||[]).find(x=>x.id===taskId);
+    if (t) {
+      document.getElementById('taskName').value=t.name;
+      document.getElementById('taskInstructions').value=t.instructions||'';
+      document.getElementById('taskShift').value=t.shift;
+      document.getElementById('taskCategory').value=t.category||'';
+      document.getElementById('taskDueTime').value=t.dueTime||'';
+      document.getElementById('taskWarnMins').value=t.warnMins||30;
+      document.getElementById('taskPriority').value=t.priority||'normal';
+      if (t.days && t.days.length>0) {
+        document.querySelectorAll('#taskModal .dow-btn').forEach(b=>{
+          if (t.days.includes(Number(b.dataset.day))) b.classList.add('active');
+        });
+      }
+    }
+  }
+  document.getElementById('taskModal').classList.add('open');
+}
+
+async function saveTask() {
+  const name=document.getElementById('taskName').value.trim();
+  if (!name) { showToast('Task name required','error'); return; }
+  const selectedDays=[...document.querySelectorAll('#taskModal .dow-btn.active')].map(b=>Number(b.dataset.day));
+  const taskData={
+    name,
+    instructions: document.getElementById('taskInstructions').value.trim(),
+    shift: document.getElementById('taskShift').value,
+    category: document.getElementById('taskCategory').value.trim()||'General',
+    dueTime: document.getElementById('taskDueTime').value,
+    warnMins: parseInt(document.getElementById('taskWarnMins').value)||30,
+    priority: document.getElementById('taskPriority').value,
+    days: selectedDays
+  };
+  const editId=document.getElementById('editTaskId').value;
+  if (editId){ const t=state.tasks.find(x=>x.id===editId); if(t) Object.assign(t,taskData); }
+  else state.tasks.push({id:'task_'+Date.now(),...taskData});
+  const res=await api('PUT','/tasks',{tasks:state.tasks});
+  if (!res) return;
+  closeModal('taskModal'); renderAdminTaskList(); renderAll(); showToast('Task saved','success');
+}
+
+async function deleteTask(taskId) {
+  if (!confirm('Delete this task?')) return;
+  state.tasks=state.tasks.filter(t=>t.id!==taskId);
+  delete state.completions[taskId]; delete state.notes[taskId];
+  await api('PUT','/tasks',{tasks:state.tasks});
+  renderAdminTaskList(); renderAll(); showToast('Task deleted','default');
+}
+
+// ==================== SETTINGS ====================
+function loadSettingsUI() { const s=state.settings||{}; const el=document.getElementById('settingEmail'); if(el) el.value=s.email||''; }
+async function saveSettings() { state.settings.email=document.getElementById('settingEmail').value; await api('PUT','/settings',{settings:state.settings}); showToast('Settings saved','success'); }
+async function changeAdminPin() {
+  const pin=document.getElementById('newAdminPin').value.trim();
+  if (!/^\d{4}$/.test(pin)){showToast('PIN must be 4 digits','error');return;}
+  const admin=state.users.find(u=>u.id==='admin'); if(admin) admin.pin=pin;
+  await api('PUT','/users',{users:state.users});
+  document.getElementById('newAdminPin').value=''; showToast('Admin PIN updated','success');
+}
+async function confirmReset() {
+  if (!confirm('Reset ALL task completions? This cannot be undone.')) return;
+  const res=await api('POST','/reset'); if(!res) return;
+  state.completions={}; state.notes={}; renderAll(); showToast('All tasks reset','success');
+}
+
+// ==================== TURNOVER ====================
+function generateTurnover() {
+  const now = new Date();
+  const h = now.getHours();
+  const isDay = h >= 6 && h < 18;
+  const shiftLabel = isDay ? 'DAY SHIFT' : 'NIGHT SHIFT';
+
+  const dayTasks   = state.tasks.filter(t=>t.shift==='day'||t.shift==='both');
+  const nightTasks = state.tasks.filter(t=>t.shift==='night'||t.shift==='both');
+  const dayDone    = dayTasks.filter(t=>state.completions[t.id]).length;
+  const nightDone  = nightTasks.filter(t=>state.completions[t.id]).length;
+  const dayPct     = dayTasks.length ? Math.round(dayDone/dayTasks.length*100) : 0;
+  const nightPct   = nightTasks.length ? Math.round(nightDone/nightTasks.length*100) : 0;
+
+  const staffSet = new Map();
+  state.tasks.forEach(t => {
+    const comp = state.completions[t.id];
+    if (comp) {
+      if (!staffSet.has(comp.userName)) staffSet.set(comp.userName, []);
+      staffSet.get(comp.userName).push(t.name);
+    }
+  });
+
+  let r = '========================================\n';
+  r += '  MSW ' + shiftLabel + ' TURNOVER REPORT\n';
+  r += '========================================\n';
+  r += 'Date: ' + now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + '\n';
+  r += 'Time: ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) + '\n';
+  r += 'Generated By: ' + currentUser.firstName + ' ' + (currentUser.lastName||'') + '\n';
+  r += '========================================\n\n';
+
+  r += 'COMPLETION SUMMARY\n';
+  r += '--------------------\n';
+  r += 'Day Shift:   ' + dayDone + '/' + dayTasks.length + ' tasks (' + dayPct + '%)\n';
+  r += 'Night Shift: ' + nightDone + '/' + nightTasks.length + ' tasks (' + nightPct + '%)\n\n';
+
+  r += 'STAFF ON SHIFT\n';
+  r += '--------------------\n';
+  if (staffSet.size === 0) { r += 'No tasks completed yet.\n'; }
+  else { staffSet.forEach((tasks, name) => { r += '  - ' + name + ' -- ' + tasks.length + ' task' + (tasks.length!==1?'s':'') + ' completed\n'; }); }
+  r += '\n';
+
+  ['day','night'].forEach(shift => {
+    const tasks = state.tasks.filter(t=>t.shift===shift||t.shift==='both');
+    if (!tasks.length) return;
+    const shiftDone = tasks.filter(t=>state.completions[t.id]).length;
+    const shiftPct  = tasks.length ? Math.round(shiftDone/tasks.length*100) : 0;
+    r += shift.toUpperCase() + ' SHIFT TASKS (' + shiftPct + '%)\n';
+    r += '--------------------\n';
+    tasks.forEach(t => {
+      const comp = state.completions[t.id];
+      r += comp
+        ? '[DONE] ' + t.name + ' -- ' + comp.userName + ' at ' + new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + '\n'
+        : '[    ] ' + t.name + ' -- INCOMPLETE\n';
+      const note = state.notes[t.id];
+      if (note && note.trim()) r += '    NOTE: ' + note.trim() + '\n';
+    });
+    r += '\n';
+  });
+
+  r += '========================================\nEND OF REPORT\n========================================\n';
+
+  turnoverText = r;
+  document.getElementById('turnoverPreview').textContent = r;
+  document.getElementById('turnoverPreview').style.display = 'block';
+  document.getElementById('turnoverActionRow').style.display = 'block';
+  document.getElementById('turnoverExecuteRow').style.display = 'block';
+}
+
+async function executeTurnover() {
+  const saved = confirm('Before executing turnover:\n\nHave you saved or shared the report?\n\nPress OK to confirm and reset all tasks, or Cancel to go back and save first.');
+  if (!saved) return;
+  const sure = confirm('Last check -- this will clear ALL task completions and notes across every device.\n\nContinue?');
+  if (!sure) return;
+  const res = await api('POST', '/reset');
+  if (!res) return;
+  state.completions = {};
+  state.notes = {};
+  document.getElementById('turnoverPreview').style.display = 'none';
+  document.getElementById('turnoverActionRow').style.display = 'none';
+  document.getElementById('turnoverExecuteRow').style.display = 'none';
+  turnoverText = '';
+  renderAll();
+  showToast('Turnover complete -- tasks reset', 'success');
+  showTab('day');
+}
+
+function downloadReport() {
+  if (!turnoverText){showToast('Generate report first','error');return;}
+  const blob=new Blob([turnoverText],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const now=new Date();
+  a.download='MSW_Turnover_'+now.toISOString().slice(0,10)+'.txt';
+  a.href=url; a.click(); URL.revokeObjectURL(url);
+  showToast('Report downloaded','success');
+}
+
+async function copyReport() {
+  if (!turnoverText) { showToast('Generate report first','error'); return; }
+  const btn = document.getElementById('copyReportBtn');
+  try {
+    await navigator.clipboard.writeText(turnoverText);
+    if(btn){btn.textContent='Copied!';setTimeout(()=>{btn.textContent='Copy Text';},2500);}
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = turnoverText;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Copied to clipboard','success');
+  }
+}
+
+async function shareReport() {
+  if (!turnoverText) { showToast('Generate report first','error'); return; }
+  if (navigator.share) {
+    try { await navigator.share({ title: 'MSW Shift Turnover Report', text: turnoverText }); }
+    catch(e) { if (e.name !== 'AbortError') showToast('Share failed -- try Copy instead','error'); }
+  } else {
+    downloadReport();
+  }
+}
+
+// ==================== MODAL / UTILS ====================
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+let toastTimer;
+function showToast(msg,type='default'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type!=='default'?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
