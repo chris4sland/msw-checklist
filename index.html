@@ -1105,11 +1105,13 @@ function generateTurnover() {
     r += '--------------------\n';
     tasks.forEach(t => {
       const comp = state.completions[t.id];
-      r += comp
-        ? '[DONE] ' + t.name + ' -- ' + comp.userName + ' at ' + new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + '\n'
-        : '[    ] ' + t.name + ' -- INCOMPLETE\n';
       const note = state.notes[t.id];
-      if (note && note.trim()) r += '    NOTE: ' + note.trim() + '\n';
+      const hasNote = note && note.trim();
+      const noteFlag = hasNote ? ' \uD83C\uDD98' : '';
+      r += comp
+        ? '\u2705' + noteFlag + ' ' + t.name + ' -- ' + comp.userName + ' at ' + new Date(comp.timestamp).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + '\n'
+        : '\u274C' + noteFlag + ' ' + t.name + ' -- INCOMPLETE\n';
+      if (hasNote) r += '    \uD83D\uDCDD NOTE: ' + note.trim() + '\n';
     });
     r += '\n';
   });
